@@ -1,5 +1,5 @@
-import { LoginV1 } from "@/features/auth/pages/LoginV1";
+import { LoginV2 } from "@/features/auth/pages/LoginV2";
 
 export default function LoginPage() {
-  return <LoginV1 />;
+  return <LoginV2 />;
 }
