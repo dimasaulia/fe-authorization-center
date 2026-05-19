@@ -9,6 +9,147 @@
   --accent: #256f61;
   --accent-foreground: #ffffff;
   --warning: #c56b32;
+  --hero: #016dfc;
+  --hero-hover: #0161df;
+  --hero-border: #0054c2;
+  --hero-foreground: #ffffff;
+  --auth-page-from: #ffffff;
+  --auth-page-mid: #f5f8fc;
+  --auth-page-to: #eef4fb;
+  --auth-card: #ffffff;
+  --auth-card-border: #dde3ea;
+  --auth-divider: #e6eaf0;
+  --auth-text: #111318;
+  --auth-muted: #667085;
+  --auth-muted-strong: #475467;
+  --auth-subtle: #7a8494;
+  --auth-field: #fafbfc;
+  --auth-field-border: #dce3ec;
+  --auth-primary: var(--hero);
+  --auth-primary-hover: var(--hero-hover);
+  --auth-primary-border: var(--hero-border);
+  --auth-success: #10b981;
+  --auth-shadow: #2563eb1a;
+  --auth-banner-shadow: #2563eb33;
+  --auth-carousel-control-bg: #ffffffeb;
+  --auth-carousel-control-hover: #ffffff;
+  --auth-carousel-control-border: #ffffffb3;
+  --auth-carousel-control-text: #000000;
+  --dashboard-bg: #f7f8fa;
+  --dashboard-panel: #ffffff;
+  --dashboard-panel-subtle: #f6f7f9;
+  --dashboard-border: #dde3ea;
+  --dashboard-border-soft: #e7ebf1;
+  --dashboard-text: #111318;
+  --dashboard-muted: #667085;
+  --dashboard-muted-strong: #475467;
+  --dashboard-subtle: #7a8494;
+  --dashboard-field: #fafbfc;
+  --dashboard-topbar: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.82) 58%,
+    rgba(255, 255, 255, 0.64) 100%
+  );
+  --dashboard-topbar-border: #dde3ea;
+  --dashboard-accent: #016dfc;
+  --dashboard-accent-hover: #0161df;
+  --dashboard-accent-border: #0054c2;
+  --dashboard-accent-soft: #f1f6ff;
+  --dashboard-accent-soft-border: #dcebff;
+  --dashboard-shadow: #0f172a08;
+  --dashboard-accent-shadow: #016dfc14;
+  --dashboard-access-header: linear-gradient(
+    135deg,
+    #eaf3ff 0%,
+    #ecfdf5 44%,
+    #fff7ed 72%,
+    #f5f3ff 100%
+  );
+  --auth-banner-gradient: radial-gradient(
+    circle farthest-corner at 18% 16%,
+    #f2f8ff 0%,
+    #c8e0fff0 24%,
+    #67a8ffd1 52%,
+    #016dfce0 78%,
+    #013b88 100%
+  );
+}
+
+:root[data-theme="dark"] {
+  --background: #00224e;
+  --foreground: #f7f9fc;
+  --muted: #a9b4c5;
+  --line: #013b88;
+  --panel: #002e6b;
+  --accent: #016dfc;
+  --accent-foreground: #ffffff;
+  --warning: #f4b267;
+  --hero: #016dfc;
+  --hero-hover: #0161df;
+  --hero-border: #67a8ff;
+  --hero-foreground: #ffffff;
+  --auth-page-from: #00224e;
+  --auth-page-mid: #002e6b;
+  --auth-page-to: #013b88;
+  --auth-card: #00224e;
+  --auth-card-border: #013b88;
+  --auth-divider: #013b88;
+  --auth-text: #f7f9fc;
+  --auth-muted: #a9b4c5;
+  --auth-muted-strong: #c8d2e1;
+  --auth-subtle: #8c99ad;
+  --auth-field: #002e6b;
+  --auth-field-border: #013b88;
+  --auth-primary: var(--hero);
+  --auth-primary-hover: var(--hero-hover);
+  --auth-primary-border: var(--hero-border);
+  --auth-success: #34d399;
+  --auth-shadow: #00000066;
+  --auth-banner-shadow: #00000059;
+  --auth-carousel-control-bg: #002e6b;
+  --auth-carousel-control-hover: #013b88;
+  --auth-carousel-control-border: #0161df;
+  --auth-carousel-control-text: #f7f9fc;
+  --dashboard-bg: #0f1218;
+  --dashboard-panel: #171b23;
+  --dashboard-panel-subtle: #202633;
+  --dashboard-border: #2a3140;
+  --dashboard-border-soft: #333b4d;
+  --dashboard-text: #f3f6fb;
+  --dashboard-muted: #aeb7c6;
+  --dashboard-muted-strong: #cbd3df;
+  --dashboard-subtle: #8f9aaa;
+  --dashboard-field: #111722;
+  --dashboard-topbar: linear-gradient(
+    90deg,
+    rgba(0, 34, 78, 0.72) 0%,
+    rgba(15, 18, 24, 0.88) 48%,
+    rgba(15, 18, 24, 0.42) 100%
+  );
+  --dashboard-topbar-border: rgba(79, 143, 247, 0.18);
+  --dashboard-accent: #4f8ff7;
+  --dashboard-accent-hover: #6fa4ff;
+  --dashboard-accent-border: #2f6ed9;
+  --dashboard-accent-soft: #10213a;
+  --dashboard-accent-soft-border: #244b82;
+  --dashboard-shadow: #00000040;
+  --dashboard-accent-shadow: #0000004d;
+  --dashboard-access-header: linear-gradient(
+    135deg,
+    #182132 0%,
+    #152622 48%,
+    #221f19 74%,
+    #201b2d 100%
+  );
+  --auth-banner-gradient: radial-gradient(
+    circle farthest-corner at 18% 16%,
+    #dbeaff 0%,
+    #69a9ffd9 25%,
+    #016dfce6 54%,
+    #013b88f2 79%,
+    #00224e 100%
+  );
 }
 
 @theme inline {
@@ -20,6 +161,10 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-warning: var(--warning);
+  --color-hero: var(--hero);
+  --color-hero-hover: var(--hero-hover);
+  --color-hero-border: var(--hero-border);
+  --color-hero-foreground: var(--hero-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

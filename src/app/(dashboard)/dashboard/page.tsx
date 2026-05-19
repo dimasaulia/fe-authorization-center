@@ -1,5 +1,5 @@
-import { DashboardHomeV1 } from "@/features/dashboard/pages/DashboardHomeV1";
+import { DashboardHomeV2 } from "@/features/dashboard/pages/DashboardHomeV2";
 
 export default function DashboardPage() {
-  return <DashboardHomeV1 />;
+  return <DashboardHomeV2 />;
 }

@@ -11,9 +11,10 @@ type ButtonProps = {
 
 const variants = {
   primary:
-    "border border-[#488BDD] bg-[#356FB9] text-white hover:bg-[#2f63a6]",
+    "border border-hero-border bg-hero text-hero-foreground hover:bg-hero-hover",
   secondary: "border border-line bg-panel text-foreground hover:bg-[#f1eadf]",
-  outline: "border border-[#DCE3EC] bg-white text-[#252A33] hover:bg-[#F7F9FC]",
+  outline:
+    "border border-[var(--auth-field-border)] bg-[var(--auth-card)] text-[var(--auth-text)] hover:bg-[var(--auth-field)]",
 };
 
 export function Button({

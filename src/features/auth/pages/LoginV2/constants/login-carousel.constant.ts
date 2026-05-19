@@ -1,21 +1,33 @@
+import type { TranslationKey } from "@/modules/preferences";
+
+type LoginCarouselSlide = {
+  badgeKey: TranslationKey;
+  descriptionKey: TranslationKey;
+  tagKeys: ReadonlyArray<TranslationKey>;
+  titleKey: TranslationKey;
+};
+
 export const loginCarouselSlides = [
   {
-    badge: "Workspace IDCH",
-    description: "Open-source workspace platform",
-    tags: ["Workspace SSO", "Network ready"],
-    title:
-      "Access mail, documents, and business tools with one trusted login.",
+    badgeKey: "login.carousel.slide1.badge",
+    descriptionKey: "login.carousel.slide1.description",
+    tagKeys: ["login.carousel.slide1.tag1", "login.carousel.slide1.tag2"],
+    titleKey: "login.carousel.slide1.title",
   },
   {
-    badge: "Authorization ready",
-    description: "Policy-aware access for every module",
-    tags: ["SDK access", "Role aware"],
-    title: "Connect identity, permissions, and workspaces without scattered checks.",
+    badgeKey: "login.carousel.slide2.badge",
+    descriptionKey: "login.carousel.slide2.description",
+    tagKeys: ["login.carousel.slide2.tag1", "login.carousel.slide2.tag2"],
+    titleKey: "login.carousel.slide2.title",
   },
   {
-    badge: "Unified console",
-    description: "One entry point for internal teams",
-    tags: ["Apps", "Files", "People"],
-    title: "Move between Open Suite tools from a single protected workspace.",
+    badgeKey: "login.carousel.slide3.badge",
+    descriptionKey: "login.carousel.slide3.description",
+    tagKeys: [
+      "login.carousel.slide3.tag1",
+      "login.carousel.slide3.tag2",
+      "login.carousel.slide3.tag3",
+    ],
+    titleKey: "login.carousel.slide3.title",
   },
-] as const;
+] as const satisfies ReadonlyArray<LoginCarouselSlide>;

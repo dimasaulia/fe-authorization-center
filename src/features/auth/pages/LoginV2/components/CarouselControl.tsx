@@ -15,7 +15,7 @@ export function CarouselControl({
   return (
     <button
       aria-label={label}
-      className="flex h-[50px] w-[54px] items-center justify-center rounded-2xl border border-[#FFFFFFB3] bg-[#FFFFFFEB] text-black shadow-[0_10px_24px_#0F172A14] transition hover:bg-white"
+      className="flex h-[50px] w-[54px] items-center justify-center rounded-2xl border border-[var(--auth-carousel-control-border)] bg-[var(--auth-carousel-control-bg)] text-[var(--auth-carousel-control-text)] shadow-[0_10px_24px_#0F172A14] transition hover:bg-[var(--auth-carousel-control-hover)]"
       onClick={onClick}
       type="button"
     >

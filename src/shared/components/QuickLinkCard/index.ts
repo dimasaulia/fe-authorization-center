@@ -1,0 +1,1 @@
+export { QuickLinkCard } from "./QuickLinkCard";

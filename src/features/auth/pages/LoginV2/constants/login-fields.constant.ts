@@ -1,18 +1,29 @@
+import type { TranslationKey } from "@/modules/preferences";
+
+type LoginField = {
+  autoComplete: string;
+  defaultValue: string;
+  labelKey: TranslationKey;
+  name: string;
+  placeholderKey: TranslationKey;
+  type: string;
+};
+
 export const loginV2Fields = [
   {
     autoComplete: "username",
     defaultValue: "dimas@idch.local",
-    label: "Email or username",
+    labelKey: "login.identifierLabel",
     name: "identifier",
-    placeholder: "name@company.local",
+    placeholderKey: "login.identifierPlaceholder",
     type: "text",
   },
   {
     autoComplete: "current-password",
     defaultValue: "",
-    label: "Password",
+    labelKey: "login.passwordLabel",
     name: "password",
-    placeholder: "Enter password",
+    placeholderKey: "login.passwordPlaceholder",
     type: "password",
   },
-] as const;
+] as const satisfies ReadonlyArray<LoginField>;

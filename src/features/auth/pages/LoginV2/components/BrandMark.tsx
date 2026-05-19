@@ -5,7 +5,7 @@ type BrandMarkProps = {
 export function BrandMark({ name = "Open Suite" }: BrandMarkProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] border border-[#DCE3EC] bg-white shadow-[0_8px_22px_#0F172A0A]">
+      <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] border border-[var(--auth-field-border)] bg-[var(--auth-card)] shadow-[0_8px_22px_#0F172A0A]">
         <svg
           aria-hidden="true"
           className="h-[18px] w-[18px]"
@@ -24,7 +24,7 @@ export function BrandMark({ name = "Open Suite" }: BrandMarkProps) {
           />
         </svg>
       </div>
-      <span className="text-base font-semibold leading-5 text-[#111318]">
+      <span className="text-base font-semibold leading-5 text-[var(--auth-text)]">
         {name}
       </span>
     </div>
