@@ -12,4 +12,19 @@ export const fallbackMenu: AppMenuItem[] = [
     href: routes.users,
     permission: "user.list",
   },
+  {
+    label: "Authorization Center",
+    href: routes.apps,
+    permission: "authorization.apps.view",
+  },
+  {
+    label: "Teams",
+    href: routes.teams,
+    permission: "authorization.teams.view",
+  },
+  {
+    label: "Actions",
+    href: routes.actions,
+    permission: "authorization.actions.view",
+  },
 ];

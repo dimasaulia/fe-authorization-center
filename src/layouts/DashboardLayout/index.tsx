@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAuthorizedMenu } from "@/modules/opensuite-sdk/authorization";
-import { AppIcon } from "@/shared/components/AppIcon";
+import { AppIcon, type AppIconName } from "@/shared/components/AppIcon";
 
 import { DashboardTopbar } from "./components/DashboardTopbar";
 
@@ -10,11 +10,19 @@ type DashboardLayoutProps = {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const menu = getAuthorizedMenu();
+  const getMenuIcon = (href: string): AppIconName => {
+    if (href.includes("users")) return "people";
+    if (href.includes("apps")) return "shield";
+    if (href.includes("teams")) return "briefcase";
+    if (href.includes("actions")) return "calculator";
+
+    return "mail";
+  };
 
   return (
-    <main className="min-h-screen bg-[var(--dashboard-bg)] text-[var(--dashboard-text)]">
-      <div className="flex min-h-screen overflow-hidden">
-        <aside className="hidden w-16 shrink-0 flex-col items-center gap-2.5 border-r border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-2.5 py-[18px] lg:flex">
+    <main className="h-dvh bg-[var(--dashboard-bg)] text-[var(--dashboard-text)]">
+      <div className="flex h-full overflow-hidden">
+        <aside className="hidden h-full w-16 shrink-0 flex-col items-center gap-2.5 overflow-y-auto border-r border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-2.5 py-[18px] lg:flex">
           <Link
             aria-label="Open Suite dashboard"
             className="flex h-[34px] w-[34px] items-center justify-center rounded-[11px] border border-[var(--dashboard-border-soft)] bg-[var(--dashboard-panel)] text-[var(--dashboard-text)]"
@@ -33,7 +41,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               >
                 <AppIcon
                   className="h-[18px] w-[18px]"
-                  name={item.href.includes("users") ? "people" : "mail"}
+                  name={getMenuIcon(item.href)}
                 />
               </Link>
             ))}
@@ -44,7 +52,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="flex h-[38px] w-[38px] items-center justify-center rounded-xl text-[var(--dashboard-text)] transition hover:bg-[var(--dashboard-panel-subtle)]"
             href="/dashboard"
           >
-            <AppIcon className="h-[18px] w-[18px]" name="settings" />
+            <AppIcon className="h-5 w-5" name="settings" />
           </Link>
           <Link
             aria-label="Account"
@@ -61,9 +69,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <AppIcon className="h-[18px] w-[18px]" name="logout" />
           </Link>
         </aside>
-        <section className="flex min-w-0 flex-1 flex-col">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
           <DashboardTopbar />
-          <div className="flex-1 overflow-auto px-5 py-6 md:px-[34px] md:py-[34px]">
+          <div className="min-h-0 flex-1 overflow-auto px-5 py-6 md:px-[34px] md:py-[34px]">
             {children}
           </div>
         </section>
