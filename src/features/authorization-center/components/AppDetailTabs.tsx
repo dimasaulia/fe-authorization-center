@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
+import { usePreferences } from "@/modules/preferences";
 
 type AppDetailTabsProps = {
   active: "overview" | "credentials" | "settings";
@@ -17,14 +20,12 @@ const disabledItems = [
 ];
 
 export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
+  const { t } = usePreferences();
+
   const items = [
-    { key: "overview", label: "Overview", href: routes.appDetail(appId) },
-    {
-      key: "credentials",
-      label: "Credentials",
-      href: routes.appCredentials(appId),
-    },
-    { key: "settings", label: "Settings", href: routes.appSettings(appId) },
+    { key: "overview", label: t("authz.appDetail.tabs.overview"), href: routes.appDetail(appId) },
+    { key: "credentials", label: t("authz.appDetail.tabs.credentials"), href: routes.appCredentials(appId) },
+    { key: "settings", label: t("authz.appDetail.tabs.settings"), href: routes.appSettings(appId) },
   ] as const;
 
   return (
@@ -48,7 +49,7 @@ export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
             className="cursor-not-allowed rounded-xl px-3.5 py-2.5 text-sm font-semibold text-[var(--dashboard-subtle)] opacity-60"
             key={item}
           >
-            {item} · Coming soon
+            {item} · {t("authz.appDetail.tabs.comingSoon")}
           </span>
         ))}
       </div>

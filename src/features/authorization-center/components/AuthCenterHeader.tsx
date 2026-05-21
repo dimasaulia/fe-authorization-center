@@ -1,5 +1,9 @@
+"use client";
+
+import Link from "next/link";
+
+import { usePreferences } from "@/modules/preferences";
 import { AppIcon } from "@/shared/components/AppIcon";
-import { Button } from "@/shared/components/Button";
 
 type AuthCenterHeaderProps = {
   actionHref?: string;
@@ -13,9 +17,11 @@ export function AuthCenterHeader({
   actionHref,
   actionLabel,
   description,
-  eyebrow = "Authorization Center",
+  eyebrow,
   title,
 }: AuthCenterHeaderProps) {
+  const { t } = usePreferences();
+
   return (
     <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <div className="flex gap-4">
@@ -24,7 +30,7 @@ export function AuthCenterHeader({
         </div>
         <div>
           <p className="text-sm font-semibold text-[var(--dashboard-accent)]">
-            {eyebrow}
+            {eyebrow ?? t("authz.eyebrow")}
           </p>
           <h1 className="mt-1 text-3xl font-semibold text-[var(--dashboard-text)]">
             {title}
@@ -35,9 +41,12 @@ export function AuthCenterHeader({
         </div>
       </div>
       {actionHref && actionLabel ? (
-        <Button className="h-11" href={actionHref}>
+        <Link
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-hero-border bg-hero px-5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(1,109,252,0.22)] transition hover:bg-hero-hover"
+          href={actionHref}
+        >
           {actionLabel}
-        </Button>
+        </Link>
       ) : null}
     </section>
   );

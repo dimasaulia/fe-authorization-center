@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
+import { usePreferences } from "@/modules/preferences";
 import { Button } from "@/shared/components/Button";
 
 import { AppDetailTabs } from "../../components/AppDetailTabs";
@@ -18,23 +21,26 @@ type AppCredentialsV1Props = {
 };
 
 export function AppCredentialsV1({ appId }: AppCredentialsV1Props) {
+  const { t } = usePreferences();
   const app = getAuthorizationApp(appId);
   const credentials = getAppCredentials(app.id);
 
   return (
     <div className="space-y-6">
       <AuthCenterHeader
-        description={`Manage credentials inside ${app.name}. Raw secrets are only shown once after creation.`}
-        title="Credentials"
+        description={t("authz.credentials.description")}
+        title={t("authz.appDetail.tabs.credentials")}
       />
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
         <AppDetailTabs active="credentials" appId={app.id} />
         <section className="min-w-0 flex-1 space-y-5">
           <div className="flex justify-end">
-            <Button href={routes.appCredentialCreate(app.id)}>Create Credential</Button>
+            <Button href={routes.appCredentialCreate(app.id)}>
+              {t("authz.credentials.create")}
+            </Button>
           </div>
           <FilterBar
-            searchPlaceholder="Search by credential name or client ID"
+            searchPlaceholder={t("authz.filter.search.credentials")}
             secondaryFilterLabel="Environment"
             secondaryFilterOptions={environments}
           />
@@ -73,7 +79,7 @@ export function AppCredentialsV1({ appId }: AppCredentialsV1Props) {
               ))}
             </div>
           </section>
-          <p className="text-sm text-[var(--dashboard-muted)]">Page 1 of 1</p>
+          <p className="text-sm text-[var(--dashboard-muted)]">{t("authz.pagination")}</p>
         </section>
       </div>
     </div>

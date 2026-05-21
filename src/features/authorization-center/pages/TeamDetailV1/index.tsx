@@ -1,3 +1,7 @@
+"use client";
+
+import { usePreferences } from "@/modules/preferences";
+
 import { AuthCenterHeader } from "../../components/AuthCenterHeader";
 import { StatusBadge } from "../../components/StatusBadge";
 import { teams } from "../../data/authorization-center.data";
@@ -9,12 +13,13 @@ type TeamDetailV1Props = {
 const tabs = ["Overview", "Members", "App Roles", "Audit"];
 
 export function TeamDetailV1({ teamId }: TeamDetailV1Props) {
+  const { t } = usePreferences();
   const team = teams.find((item) => item.id === teamId) ?? teams[0];
 
   return (
     <div className="space-y-6">
       <AuthCenterHeader
-        description="Review team identity and membership foundation before app roles are connected."
+        description={t("authz.teamDetail.description")}
         title={team.name}
       />
       <nav className="flex flex-wrap gap-2 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] p-2">
@@ -24,12 +29,12 @@ export function TeamDetailV1({ teamId }: TeamDetailV1Props) {
               index === 0
                 ? "bg-[var(--dashboard-accent-soft)] text-[var(--dashboard-accent)]"
                 : index === 1
-                  ? "text-[var(--dashboard-muted)]"
+                  ? "cursor-default text-[var(--dashboard-muted)]"
                   : "cursor-not-allowed text-[var(--dashboard-subtle)] opacity-60"
             }`}
             key={tab}
           >
-            {tab}{index > 1 ? " · Coming soon" : ""}
+            {tab}{index > 1 ? ` · ${t("authz.appDetail.tabs.comingSoon")}` : ""}
           </span>
         ))}
       </nav>
@@ -47,16 +52,14 @@ export function TeamDetailV1({ teamId }: TeamDetailV1Props) {
         </div>
         <dl className="mt-5 grid gap-4 md:grid-cols-4">
           {[
+            [t("authz.appDetail.overview.status"), team.status],
             ["Organization", team.organization],
-            ["Status", team.status],
             ["Member count", String(team.memberCount)],
-            ["Created at", team.createdAt],
+            [t("authz.appDetail.overview.createdAt"), team.createdAt],
           ].map(([label, value]) => (
             <div key={label}>
               <dt className="text-sm text-[var(--dashboard-muted)]">{label}</dt>
-              <dd className="mt-1 font-semibold text-[var(--dashboard-text)]">
-                {value}
-              </dd>
+              <dd className="mt-1 font-semibold text-[var(--dashboard-text)]">{value}</dd>
             </div>
           ))}
         </dl>

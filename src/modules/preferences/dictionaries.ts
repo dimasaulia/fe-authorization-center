@@ -107,6 +107,87 @@ export const dictionaries = {
     "login.carousel.slide3.tag3": "People",
     "login.carousel.slide3.title":
       "Move between Open Suite tools from a single protected workspace.",
+
+    "authz.eyebrow": "Authorization Center",
+    "authz.apps.title": "Apps",
+    "authz.apps.description":
+      "Manage applications that consume OpenSuite Authorization Center, starting from identity, credentials, and foundational access data.",
+    "authz.apps.create": "Create App",
+    "authz.apps.addCard.title": "Add app",
+    "authz.apps.addCard.description":
+      "Register a new app for authorization, credentials, and roles.",
+    "authz.teams.title": "Teams",
+    "authz.teams.description":
+      "Group users across apps or organization boundaries before wiring app roles.",
+    "authz.teams.create": "Create Team",
+    "authz.actions.title": "Actions",
+    "authz.actions.description":
+      "Maintain the global operation catalog that will compose permissions later.",
+    "authz.actions.create": "Create Action",
+    "authz.nav.apps": "Apps",
+    "authz.nav.teams": "Teams",
+    "authz.nav.actions": "Actions",
+    "authz.filter.allStatuses": "All statuses",
+    "authz.filter.active": "Active",
+    "authz.filter.inactive": "Inactive",
+    "authz.filter.search.apps": "Search by app name or code",
+    "authz.filter.search.teams": "Search by team name or code",
+    "authz.filter.search.actions": "Search by action name or code",
+    "authz.filter.search.credentials": "Search by credential name or client ID",
+    "authz.pagination": "Page 1 of 1",
+    "authz.appDetail.description":
+      "Review app identity, integration readiness, and available configuration areas.",
+    "authz.appDetail.edit": "Edit",
+    "authz.appDetail.tabs.overview": "Overview",
+    "authz.appDetail.tabs.credentials": "Credentials",
+    "authz.appDetail.tabs.settings": "Settings",
+    "authz.appDetail.tabs.comingSoon": "Coming soon",
+    "authz.appDetail.overview.credentialCount": "Credential count",
+    "authz.appDetail.overview.ownerTeam": "Owner team",
+    "authz.appDetail.overview.status": "Status",
+    "authz.appDetail.overview.createdAt": "Created at",
+    "authz.appDetail.overview.updatedAt": "Updated at",
+    "authz.appDetail.overview.environmentCount": "Environment count",
+    "authz.appDetail.overview.integrationHint": "Integration hint / SDK config preview",
+    "authz.credentials.description":
+      "Manage credentials inside this app. Raw secrets are only shown once after creation.",
+    "authz.credentials.create": "Create Credential",
+    "authz.credentials.secretTitle": "Secret shown once",
+    "authz.credentials.secretWarning":
+      "Store this secret now. It should be persisted only as a hash/reference and will not be shown again after this panel is closed.",
+    "authz.credentials.copySecret": "Copy Secret",
+    "authz.credentials.downloadEnv": "Download .env snippet",
+    "authz.credentials.done": "Done",
+    "authz.settings.description":
+      "Edit app metadata while keeping technical identity fields protected.",
+    "authz.settings.editableFields": "Editable fields",
+    "authz.settings.readonlyFields": "Readonly fields",
+    "authz.settings.dangerZone": "Danger zone",
+    "authz.settings.dangerDescription":
+      "Disable app immediately blocks new authorization usage. Delete is only allowed when there are no credentials, permissions, or user assignments.",
+    "authz.settings.disableApp": "Disable App",
+    "authz.settings.deleteApp": "Delete App",
+    "authz.form.save": "Save",
+    "authz.form.cancel": "Cancel",
+    "authz.form.required": "Fields marked with * are required.",
+    "authz.appCreate.title": "Create App",
+    "authz.appCreate.description":
+      "Create an app identity that will become the permission prefix and credential boundary.",
+    "authz.appCreate.formTitle": "App identity",
+    "authz.teamCreate.title": "Create Team",
+    "authz.teamCreate.description":
+      "Create a team that can later receive app-specific roles and memberships.",
+    "authz.teamCreate.formTitle": "Team identity",
+    "authz.actionCreate.title": "Create Action",
+    "authz.actionCreate.description":
+      "Create a reusable action code. System actions should not be deleted once seeded.",
+    "authz.actionCreate.formTitle": "Action identity",
+    "authz.teamDetail.description":
+      "Review team identity and membership foundation before app roles are connected.",
+    "authz.credentialCreate.title": "Create Credential",
+    "authz.credentialCreate.description":
+      "Create a credential for a specific app environment. The generated raw secret is only shown once.",
+    "authz.credentialCreate.formTitle": "Credential details",
   },
   id: {
     "common.language": "Bahasa",
@@ -217,6 +298,87 @@ export const dictionaries = {
     "login.carousel.slide3.tag3": "Pengguna",
     "login.carousel.slide3.title":
       "Berpindah antar alat Open Suite dari satu workspace yang terlindungi.",
+
+    "authz.eyebrow": "Authorization Center",
+    "authz.apps.title": "Aplikasi",
+    "authz.apps.description":
+      "Kelola aplikasi yang menggunakan OpenSuite Authorization Center, mulai dari identitas, kredensial, dan data akses fondasi.",
+    "authz.apps.create": "Buat Aplikasi",
+    "authz.apps.addCard.title": "Tambah aplikasi",
+    "authz.apps.addCard.description":
+      "Daftarkan aplikasi baru untuk otorisasi, kredensial, dan peran.",
+    "authz.teams.title": "Tim",
+    "authz.teams.description":
+      "Kelompokkan pengguna lintas aplikasi atau batas organisasi sebelum menghubungkan peran aplikasi.",
+    "authz.teams.create": "Buat Tim",
+    "authz.actions.title": "Aksi",
+    "authz.actions.description":
+      "Kelola katalog operasi global yang akan membentuk izin nantinya.",
+    "authz.actions.create": "Buat Aksi",
+    "authz.nav.apps": "Aplikasi",
+    "authz.nav.teams": "Tim",
+    "authz.nav.actions": "Aksi",
+    "authz.filter.allStatuses": "Semua status",
+    "authz.filter.active": "Aktif",
+    "authz.filter.inactive": "Tidak aktif",
+    "authz.filter.search.apps": "Cari berdasarkan nama atau kode aplikasi",
+    "authz.filter.search.teams": "Cari berdasarkan nama atau kode tim",
+    "authz.filter.search.actions": "Cari berdasarkan nama atau kode aksi",
+    "authz.filter.search.credentials": "Cari berdasarkan nama kredensial atau client ID",
+    "authz.pagination": "Halaman 1 dari 1",
+    "authz.appDetail.description":
+      "Tinjau identitas aplikasi, kesiapan integrasi, dan area konfigurasi yang tersedia.",
+    "authz.appDetail.edit": "Edit",
+    "authz.appDetail.tabs.overview": "Ikhtisar",
+    "authz.appDetail.tabs.credentials": "Kredensial",
+    "authz.appDetail.tabs.settings": "Pengaturan",
+    "authz.appDetail.tabs.comingSoon": "Segera hadir",
+    "authz.appDetail.overview.credentialCount": "Jumlah kredensial",
+    "authz.appDetail.overview.ownerTeam": "Tim pemilik",
+    "authz.appDetail.overview.status": "Status",
+    "authz.appDetail.overview.createdAt": "Dibuat pada",
+    "authz.appDetail.overview.updatedAt": "Diperbarui pada",
+    "authz.appDetail.overview.environmentCount": "Jumlah environment",
+    "authz.appDetail.overview.integrationHint": "Petunjuk integrasi / pratinjau konfigurasi SDK",
+    "authz.credentials.description":
+      "Kelola kredensial di dalam aplikasi ini. Secret mentah hanya ditampilkan sekali setelah pembuatan.",
+    "authz.credentials.create": "Buat Kredensial",
+    "authz.credentials.secretTitle": "Secret ditampilkan sekali",
+    "authz.credentials.secretWarning":
+      "Simpan secret ini sekarang. Secret hanya disimpan sebagai hash/referensi dan tidak akan ditampilkan lagi setelah panel ini ditutup.",
+    "authz.credentials.copySecret": "Salin Secret",
+    "authz.credentials.downloadEnv": "Unduh snippet .env",
+    "authz.credentials.done": "Selesai",
+    "authz.settings.description":
+      "Edit metadata aplikasi sambil menjaga field identitas teknis tetap terlindungi.",
+    "authz.settings.editableFields": "Field yang dapat diedit",
+    "authz.settings.readonlyFields": "Field hanya baca",
+    "authz.settings.dangerZone": "Zona berbahaya",
+    "authz.settings.dangerDescription":
+      "Menonaktifkan aplikasi langsung memblokir penggunaan otorisasi baru. Hapus hanya diizinkan jika tidak ada kredensial, izin, atau penugasan pengguna.",
+    "authz.settings.disableApp": "Nonaktifkan Aplikasi",
+    "authz.settings.deleteApp": "Hapus Aplikasi",
+    "authz.form.save": "Simpan",
+    "authz.form.cancel": "Batal",
+    "authz.form.required": "Field bertanda * wajib diisi.",
+    "authz.appCreate.title": "Buat Aplikasi",
+    "authz.appCreate.description":
+      "Buat identitas aplikasi yang akan menjadi prefix izin dan batas kredensial.",
+    "authz.appCreate.formTitle": "Identitas aplikasi",
+    "authz.teamCreate.title": "Buat Tim",
+    "authz.teamCreate.description":
+      "Buat tim yang nantinya dapat menerima peran spesifik aplikasi dan keanggotaan.",
+    "authz.teamCreate.formTitle": "Identitas tim",
+    "authz.actionCreate.title": "Buat Aksi",
+    "authz.actionCreate.description":
+      "Buat kode aksi yang dapat digunakan ulang. Aksi sistem tidak boleh dihapus setelah di-seed.",
+    "authz.actionCreate.formTitle": "Identitas aksi",
+    "authz.teamDetail.description":
+      "Tinjau identitas tim dan fondasi keanggotaan sebelum peran aplikasi dihubungkan.",
+    "authz.credentialCreate.title": "Buat Kredensial",
+    "authz.credentialCreate.description":
+      "Buat kredensial untuk environment aplikasi tertentu. Secret mentah yang dihasilkan hanya ditampilkan sekali.",
+    "authz.credentialCreate.formTitle": "Detail kredensial",
   },
 } as const;
 

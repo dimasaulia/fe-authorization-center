@@ -1,18 +1,23 @@
+"use client";
+
 import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
+import { usePreferences } from "@/modules/preferences";
 
 type AuthCenterNavProps = {
   active: "apps" | "teams" | "actions";
 };
 
-const items = [
-  { key: "apps", label: "Apps", href: routes.apps },
-  { key: "teams", label: "Teams", href: routes.teams },
-  { key: "actions", label: "Actions", href: routes.actions },
-] as const;
-
 export function AuthCenterNav({ active }: AuthCenterNavProps) {
+  const { t } = usePreferences();
+
+  const items = [
+    { key: "apps", label: t("authz.nav.apps"), href: routes.apps },
+    { key: "teams", label: t("authz.nav.teams"), href: routes.teams },
+    { key: "actions", label: t("authz.nav.actions"), href: routes.actions },
+  ] as const;
+
   return (
     <nav className="flex flex-wrap gap-2 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] p-2">
       {items.map((item) => (

@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
+import { usePreferences } from "@/modules/preferences";
 import { AppIcon } from "@/shared/components/AppIcon";
 
 import type { AuthorizationApp } from "../data/authorization-center.data";
@@ -12,19 +15,34 @@ type AppCardProps = {
 };
 
 export function AppCard({ app, variant = "app" }: AppCardProps) {
+  const { t } = usePreferences();
+
   if (variant === "create") {
     return (
       <Link
-        className="flex min-h-[170px] flex-col justify-between rounded-2xl border border-dashed border-[var(--dashboard-accent-border)] bg-[var(--dashboard-accent-soft)] p-5 text-[var(--dashboard-accent)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_var(--dashboard-shadow)]"
+        className="flex min-h-[210px] flex-col items-center justify-center gap-4 rounded-[18px] border border-dashed border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_2px_var(--dashboard-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--dashboard-accent-border)] hover:shadow-[0_12px_28px_var(--dashboard-shadow)]"
         href={routes.appCreate}
       >
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--dashboard-panel)]">
-          <AppIcon className="h-5 w-5" name="shield" />
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--dashboard-border-soft)] bg-[var(--dashboard-field)] text-[var(--dashboard-muted)]">
+          <svg
+            aria-hidden="true"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
         </span>
-        <span>
-          <strong className="block text-base font-semibold">Add app</strong>
-          <span className="mt-1 block text-sm leading-5 text-[var(--dashboard-muted-strong)]">
-            Register a new app for authorization, credentials, and roles.
+        <span className="text-center">
+          <strong className="block text-base font-semibold text-[var(--dashboard-text)]">
+            {t("authz.apps.addCard.title")}
+          </strong>
+          <span className="mt-1 block max-w-[160px] text-[13px] leading-[1.35] text-[var(--dashboard-muted)]">
+            {t("authz.apps.addCard.description")}
           </span>
         </span>
       </Link>
@@ -35,23 +53,25 @@ export function AppCard({ app, variant = "app" }: AppCardProps) {
 
   return (
     <Link
-      className="flex min-h-[170px] flex-col justify-between rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] p-5 transition hover:-translate-y-0.5 hover:border-[var(--dashboard-accent-border)] hover:shadow-[0_12px_28px_var(--dashboard-shadow)]"
+      className="flex min-h-[210px] flex-col overflow-hidden rounded-[18px] border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_2px_var(--dashboard-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--dashboard-accent-border)] hover:shadow-[0_12px_28px_var(--dashboard-shadow)]"
       href={routes.appDetail(app.id)}
     >
-      <span className="flex items-start justify-between gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--dashboard-border-soft)] bg-[var(--dashboard-field)] text-[var(--dashboard-accent)]">
-          <AppIcon className="h-5 w-5" name="shield" />
+      <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-[var(--dashboard-border-soft)] bg-[var(--dashboard-panel-subtle)]">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--dashboard-border-soft)] bg-[var(--dashboard-panel)] text-[var(--dashboard-subtle)]">
+          <AppIcon className="h-6 w-6" name="shield" />
         </span>
-        <StatusBadge status={app.status} />
-      </span>
-      <span>
-        <strong className="block text-base font-semibold text-[var(--dashboard-text)]">
-          {app.name}
-        </strong>
-        <span className="mt-1 block text-sm text-[var(--dashboard-muted)]">
+      </div>
+      <div className="flex flex-1 flex-col justify-center gap-2 px-5 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <strong className="text-base font-semibold leading-[1.2] text-[var(--dashboard-text)]">
+            {app.name}
+          </strong>
+          <StatusBadge status={app.status} />
+        </div>
+        <p className="text-[13px] leading-[1.35] text-[var(--dashboard-muted)]">
           {app.code} · {app.type}
-        </span>
-      </span>
+        </p>
+      </div>
     </Link>
   );
 }
