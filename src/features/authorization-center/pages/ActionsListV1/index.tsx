@@ -4,15 +4,48 @@ import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
+import { AppIcon } from "@/shared/components/AppIcon";
+import { DataTable, type DataTableColumn } from "@/shared/components/DataTable";
 
 import { AuthCenterHeader } from "../../components/AuthCenterHeader";
 import { AuthCenterNav } from "../../components/AuthCenterNav";
-import { FilterBar } from "../../components/FilterBar";
-import { StatusBadge } from "../../components/StatusBadge";
-import { authorizationActions } from "../../data/authorization-center.data";
+import type { Action } from "../../modules/actions/actions.type";
+import { useActionsListController } from "./controller/useActionsListController";
 
 export function ActionsListV1() {
   const { t } = usePreferences();
+  const { actions, error, isLoading, search, setSearch, reload } =
+    useActionsListController();
+
+  const columns: DataTableColumn<Action>[] = [
+    {
+      key: "name",
+      label: "Action Name",
+      width: "1fr",
+      render: (row) => (
+        <strong className="text-[var(--dashboard-text)]">{row.name}</strong>
+      ),
+    },
+    {
+      key: "code",
+      label: "Action Code",
+      width: "1fr",
+      render: (row) => (
+        <span className="font-mono text-[var(--dashboard-muted)]">{row.code}</span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      width: "160px",
+      render: (row) => (
+        <span className="flex gap-3 text-xs font-semibold text-[var(--dashboard-accent)]">
+          <Link href={routes.actions}>View</Link>
+          <Link href={routes.actionCreate}>Edit</Link>
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -23,45 +56,51 @@ export function ActionsListV1() {
         title={t("authz.actions.title")}
       />
       <AuthCenterNav active="actions" />
-      <FilterBar
-        searchPlaceholder={t("authz.filter.search.actions")}
-        secondaryFilterLabel="Type"
-        secondaryFilterOptions={["read", "write", "approval", "export", "admin", "system"]}
-      />
-      <section className="overflow-hidden rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)]">
-        <div className="min-w-[900px]">
-          <div className="grid grid-cols-[1fr_1fr_110px_110px_110px_100px_120px_170px] border-b border-[var(--dashboard-border-soft)] px-4 py-3 text-xs font-semibold uppercase tracking-[0.04em] text-[var(--dashboard-muted)]">
-            <span>Action Name</span>
-            <span>Action Code</span>
-            <span>Type</span>
-            <span>Risk Level</span>
-            <span>Status</span>
-            <span>System</span>
-            <span>Created At</span>
-            <span>Actions</span>
-          </div>
-          {authorizationActions.map((action) => (
-            <div
-              className="grid grid-cols-[1fr_1fr_110px_110px_110px_100px_120px_170px] items-center border-b border-[var(--dashboard-border-soft)] px-4 py-4 text-sm last:border-b-0"
-              key={action.id}
-            >
-              <strong>{action.name}</strong>
-              <span className="text-[var(--dashboard-muted)]">{action.code}</span>
-              <span>{action.type}</span>
-              <span className="capitalize">{action.riskLevel}</span>
-              <StatusBadge status={action.status} />
-              <span>{action.isSystem ? "Yes" : "No"}</span>
-              <span>{action.createdAt}</span>
-              <span className="flex gap-3 text-xs font-semibold text-[var(--dashboard-accent)]">
-                <Link href={routes.actions}>View</Link>
-                <Link href={routes.actionCreate}>Edit</Link>
-                <button className="text-[var(--dashboard-muted)]" type="button">Disable</button>
-              </span>
-            </div>
-          ))}
+
+      {/* Search bar */}
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-4 py-3">
+        <AppIcon className="h-4 w-4 shrink-0 text-[var(--dashboard-subtle)]" name="search" />
+        <input
+          className="flex-1 bg-transparent text-sm text-[var(--dashboard-text)] outline-none placeholder:text-[var(--dashboard-subtle)]"
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("authz.filter.search.actions")}
+          type="search"
+          value={search}
+        />
+        {search.length > 0 && (
+          <button
+            className="text-xs text-[var(--dashboard-muted)] hover:text-[var(--dashboard-text)]"
+            onClick={() => setSearch("")}
+            type="button"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* Error state */}
+      {error && (
+        <div className="flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+          <span>{error}</span>
+          <button className="font-semibold underline" onClick={reload} type="button">
+            Retry
+          </button>
         </div>
-      </section>
-      <p className="text-sm text-[var(--dashboard-muted)]">{t("authz.pagination")}</p>
+      )}
+
+      <DataTable
+        columns={columns}
+        emptyMessage={search ? `No actions found for "${search}"` : "No actions yet."}
+        getRowKey={(row) => String(row.id)}
+        isLoading={isLoading}
+        minWidth="600px"
+        rows={actions}
+        title="Actions"
+      />
+
+      <p className="text-sm text-[var(--dashboard-muted)]">
+        {isLoading ? "Loading..." : `${actions.length} action${actions.length !== 1 ? "s" : ""} found`}
+      </p>
     </div>
   );
 }
