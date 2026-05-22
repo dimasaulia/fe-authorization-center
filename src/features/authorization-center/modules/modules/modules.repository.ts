@@ -31,6 +31,25 @@ export async function fetchModules(
   );
 }
 
+export async function fetchModulesByApp(
+  appCode: string,
+  params: AppModuleListParams = {},
+  language?: string,
+): Promise<AppModuleListResponse> {
+  const { limit = 100, offset = 0, search = "" } = params;
+  const endpoint = endpoints.modules.listByApp(appCode);
+  const query = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+    search,
+  }).toString();
+
+  return apiClient<AppModuleListResponse>(
+    `${endpoint.url}?${query}`,
+    { method: endpoint.method, baseUrl: getBaseUrl(), language },
+  );
+}
+
 export async function createModule(
   payload: AppModuleCreatePayload,
   language?: string,

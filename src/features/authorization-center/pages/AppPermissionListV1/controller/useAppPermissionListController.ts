@@ -5,19 +5,22 @@ import { useCallback, useEffect, useState } from "react";
 import { usePreferences } from "@/modules/preferences";
 
 import { getAppByCode } from "../../../modules/apps/apps.service";
-import { deleteExistingModule, getModulesByApp } from "../../../modules/modules/modules.service";
+import {
+  deleteExistingPermission,
+  getPermissionsByApp,
+} from "../../../modules/permissions/permissions.service";
 import type { App } from "../../../modules/apps/apps.type";
-import type { AppModule } from "../../../modules/modules/modules.type";
+import type { Permission } from "../../../modules/permissions/permissions.type";
 
-export function useAppModuleListController(appCode: string) {
+export function useAppPermissionListController(appCode: string) {
   const { language, t } = usePreferences();
   const [app, setApp] = useState<App | null>(null);
-  const [modules, setModules] = useState<AppModule[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const load = useCallback(
     (q: string) => {
@@ -25,12 +28,14 @@ export function useAppModuleListController(appCode: string) {
         .then((appData) => {
           setApp(appData);
 
-          return getModulesByApp(appCode, { limit: 20, offset: 0, search: q }, language).then(
-            (items) => {
-              setModules(items);
-              setIsLoading(false);
-            },
-          );
+          return getPermissionsByApp(
+            appCode,
+            { limit: 50, offset: 0, search: q },
+            language,
+          ).then((items) => {
+            setPermissions(items);
+            setIsLoading(false);
+          });
         })
         .catch(() => {
           setError(t("common.error.loadFailed"));
@@ -61,12 +66,12 @@ export function useAppModuleListController(appCode: string) {
     setDeletingId(id);
     setConfirmDeleteId(null);
 
-    deleteExistingModule(id, language)
+    deleteExistingPermission(id, language)
       .then(() => {
-        setModules((prev) => prev.filter((m) => m.id !== id));
+        setPermissions((prev) => prev.filter((p) => p.id !== id));
       })
       .catch(() => {
-        setError(t("authz.moduleDelete.error"));
+        setError(t("authz.permissionDelete.error"));
       })
       .finally(() => {
         setDeletingId(null);
@@ -80,9 +85,9 @@ export function useAppModuleListController(appCode: string) {
     confirmDeleteId,
     deletingId,
     error,
-    isLoading,
-    modules,
     executeDelete,
+    isLoading,
+    permissions,
     search,
     setSearch,
   };

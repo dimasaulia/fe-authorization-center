@@ -35,9 +35,18 @@ export const endpoints = {
   },
   modules: {
     list: { method: "GET", url: "/api/v1/modules" },
+    listByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/modules/by-app/${appCode}` }),
     detail: (unique: string) => ({ method: "GET", url: `/api/v1/modules/${unique}` }),
     create: { method: "POST", url: "/api/v1/modules" },
     update: (id: number) => ({ method: "PUT", url: `/api/v1/modules/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/modules/${id}` }),
+  },
+  permissions: {
+    list: { method: "GET", url: "/api/v1/permissions" },
+    listByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/permissions/by-app/${appCode}` }),
+    detail: (id: number) => ({ method: "GET", url: `/api/v1/permissions/${id}` }),
+    bulkCreate: { method: "POST", url: "/api/v1/permissions/bulk" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/permissions/${id}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/permissions/${id}` }),
   },
 } as const;

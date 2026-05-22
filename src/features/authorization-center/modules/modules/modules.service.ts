@@ -1,8 +1,14 @@
-import { fetchModules, createModule, updateModule, deleteModule } from "./modules.repository";
+import { fetchModules, fetchModulesByApp, createModule, updateModule, deleteModule } from "./modules.repository";
 import type { AppModuleCreatePayload, AppModuleListParams, AppModuleUpdatePayload } from "./modules.type";
 
 export async function getModules(params: AppModuleListParams = {}, language?: string) {
   const response = await fetchModules(params, language);
+
+  return response.data.items;
+}
+
+export async function getModulesByApp(appCode: string, params: AppModuleListParams = {}, language?: string) {
+  const response = await fetchModulesByApp(appCode, params, language);
 
   return response.data.items;
 }

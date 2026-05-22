@@ -13,21 +13,28 @@ function getBaseUrl() {
   return envConfig.authorizationCenterUrl;
 }
 
-export async function fetchActions(params: ActionListParams = {}): Promise<ActionListResponse> {
+export async function fetchActions(
+  params: ActionListParams = {},
+  language?: string,
+): Promise<ActionListResponse> {
   const { search = "" } = params;
   const query = new URLSearchParams({ search }).toString();
 
   return apiClient<ActionListResponse>(
     `${endpoints.actions.list.url}?${query}`,
-    { method: endpoints.actions.list.method, baseUrl: getBaseUrl() },
+    { method: endpoints.actions.list.method, baseUrl: getBaseUrl(), language },
   );
 }
 
-export async function createAction(payload: ActionCreatePayload): Promise<ActionCreateResponse> {
+export async function createAction(
+  payload: ActionCreatePayload,
+  language?: string,
+): Promise<ActionCreateResponse> {
   return apiClient<ActionCreateResponse>(endpoints.actions.create.url, {
     method: endpoints.actions.create.method,
     baseUrl: getBaseUrl(),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    language,
   });
 }

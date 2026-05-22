@@ -8,7 +8,7 @@ import { usePreferences } from "@/modules/preferences";
 import { slugify } from "@/shared/utils/slugify";
 
 import { getAppByCode } from "../../../modules/apps/apps.service";
-import { updateExistingModule, getModules } from "../../../modules/modules/modules.service";
+import { getModulesByApp, updateExistingModule } from "../../../modules/modules/modules.service";
 import type { App } from "../../../modules/apps/apps.type";
 import type { AppModule, AppModuleUpdatePayload } from "../../../modules/modules/modules.type";
 
@@ -21,7 +21,6 @@ export function useAppModuleEditController(appCode: string, moduleId: string) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state — initialized from mod once loaded
   const [name, setName] = useState("");
   const [moduleSlug, setModuleSlug] = useState("");
   const [codeOverride, setCodeOverride] = useState(false);
@@ -34,7 +33,7 @@ export function useAppModuleEditController(appCode: string, moduleId: string) {
       .then((appData) => {
         if (cancelled) return;
 
-        return getModules({ limit: 100, offset: 0, search: "" }, language).then(
+        return getModulesByApp(appCode, { limit: 100, offset: 0, search: "" }, language).then(
           (items) => {
             if (cancelled) return;
             const found = items.find((m) => m.id === Number(moduleId)) ?? null;
