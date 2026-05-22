@@ -6,14 +6,13 @@ import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 
 type AppDetailTabsProps = {
-  active: "overview" | "credentials" | "settings";
+  active: "overview" | "credentials" | "modules" | "settings";
   appId: string;
 };
 
 const disabledItems = [
-  "Modules",
-  "Menus & Routes",
   "Permissions",
+  "Menus & Routes",
   "Roles",
   "Users & Teams",
   "Audit",
@@ -25,6 +24,7 @@ export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
   const items = [
     { key: "overview", label: t("authz.appDetail.tabs.overview"), href: routes.appDetail(appId) },
     { key: "credentials", label: t("authz.appDetail.tabs.credentials"), href: routes.appCredentials(appId) },
+    { key: "modules", label: t("authz.appDetail.tabs.modules"), href: routes.appModules(appId) },
     { key: "settings", label: t("authz.appDetail.tabs.settings"), href: routes.appSettings(appId) },
   ] as const;
 
@@ -33,11 +33,10 @@ export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
       <div className="grid gap-1">
         {items.map((item) => (
           <Link
-            className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
-              active === item.key
+            className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${active === item.key
                 ? "bg-[var(--dashboard-accent-soft)] text-[var(--dashboard-accent)]"
                 : "text-[var(--dashboard-muted)] hover:bg-[var(--dashboard-panel-subtle)] hover:text-[var(--dashboard-text)]"
-            }`}
+              }`}
             href={item.href}
             key={item.key}
           >

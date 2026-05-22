@@ -14,23 +14,30 @@ export const endpoints = {
   },
   apps: {
     list: { method: "GET", url: "/api/v1/apps" },
-    detail: (id: number) => ({ method: "GET", url: `/api/v1/apps/${id}` }),
+    detail: (unique: string) => ({ method: "GET", url: `/api/v1/apps/${unique}` }),
     create: { method: "POST", url: "/api/v1/apps" },
     update: (id: number) => ({ method: "PUT", url: `/api/v1/apps/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/apps/${id}` }),
   },
   actions: {
     list: { method: "GET", url: "/api/v1/actions" },
-    detail: (id: number) => ({ method: "GET", url: `/api/v1/actions/${id}` }),
+    detail: (unique: string) => ({ method: "GET", url: `/api/v1/actions/${unique}` }),
     create: { method: "POST", url: "/api/v1/actions" },
     update: (id: number) => ({ method: "PUT", url: `/api/v1/actions/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/actions/${id}` }),
   },
   teams: {
     list: { method: "GET", url: "/api/v1/teams" },
-    detail: (id: number) => ({ method: "GET", url: `/api/v1/teams/${id}` }),
+    detail: (unique: string) => ({ method: "GET", url: `/api/v1/teams/${unique}` }),
     create: { method: "POST", url: "/api/v1/teams" },
     update: (id: number) => ({ method: "PUT", url: `/api/v1/teams/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/teams/${id}` }),
+  },
+  modules: {
+    list: { method: "GET", url: "/api/v1/modules" },
+    detail: (unique: string) => ({ method: "GET", url: `/api/v1/modules/${unique}` }),
+    create: { method: "POST", url: "/api/v1/modules" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/modules/${id}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/modules/${id}` }),
   },
 } as const;

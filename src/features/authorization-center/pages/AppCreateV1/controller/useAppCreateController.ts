@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { routes } from "@/config/routes.config";
+import { slugify } from "@/shared/utils/slugify";
 
 import { createNewApp } from "../../../modules/apps/apps.service";
 import type { AppCreatePayload } from "../../../modules/apps/apps.type";
@@ -13,13 +14,6 @@ export function useAppCreateController() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const slugify = (value: string) =>
-    value
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
-
   const submit = useCallback(
     async (payload: AppCreatePayload) => {
       setIsSubmitting(true);
@@ -27,7 +21,7 @@ export function useAppCreateController() {
       try {
         const app = await createNewApp(payload);
 
-        router.push(routes.appDetail(String(app.id)));
+        router.push(routes.appDetail(app.code));
       } catch {
         setError("Failed to create app. Please try again.");
         setIsSubmitting(false);

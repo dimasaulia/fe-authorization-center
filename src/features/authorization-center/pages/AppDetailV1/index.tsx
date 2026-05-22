@@ -7,10 +7,7 @@ import { Button } from "@/shared/components/Button";
 import { AppDetailTabs } from "../../components/AppDetailTabs";
 import { AuthCenterHeader } from "../../components/AuthCenterHeader";
 import { StatusBadge } from "../../components/StatusBadge";
-import {
-  getAppCredentials,
-  getAuthorizationApp,
-} from "../../data/authorization-center.data";
+import { useAppDetailController } from "./controller/useAppDetailController";
 
 type AppDetailV1Props = {
   appId: string;
@@ -18,16 +15,29 @@ type AppDetailV1Props = {
 
 export function AppDetailV1({ appId }: AppDetailV1Props) {
   const { t } = usePreferences();
-  const app = getAuthorizationApp(appId);
-  const credentials = getAppCredentials(app.id);
+  const { app, isLoading, error } = useAppDetailController(appId);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-20 animate-pulse rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)]" />
+        <div className="h-24 animate-pulse rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)]" />
+      </div>
+    );
+  }
+
+  if (error || !app) {
+    return (
+      <p className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        {error ?? t("common.error.notFound")}
+      </p>
+    );
+  }
 
   const overviewItems = [
-    [t("authz.appDetail.overview.credentialCount"), String(credentials.length)],
-    [t("authz.appDetail.overview.ownerTeam"), app.ownerTeam],
     [t("authz.appDetail.overview.status"), app.status],
-    [t("authz.appDetail.overview.createdAt"), app.createdAt],
-    [t("authz.appDetail.overview.updatedAt"), app.updatedAt],
-    [t("authz.appDetail.overview.environmentCount"), String(app.environmentCount)],
+    [t("authz.appDetail.overview.createdAt"), app.created_at],
+    [t("authz.appDetail.overview.updatedAt"), app.updated_at],
   ];
 
   return (
@@ -45,16 +55,16 @@ export function AppDetailV1({ appId }: AppDetailV1Props) {
             <StatusBadge status={app.status} />
           </div>
           <p className="mt-2 text-sm text-[var(--dashboard-muted)]">
-            {app.code} · {app.type}
+            {app.code}
           </p>
         </div>
-        <Button href={routes.appSettings(app.id)} variant="secondary">
+        <Button href={routes.appSettings(appId)} variant="secondary">
           {t("authz.appDetail.edit")}
         </Button>
       </section>
 
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-        <AppDetailTabs active="overview" appId={app.id} />
+        <AppDetailTabs active="overview" appId={appId} />
         <section className="grid flex-1 gap-5">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {overviewItems.map(([label, value]) => (

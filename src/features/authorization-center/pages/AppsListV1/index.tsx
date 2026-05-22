@@ -95,7 +95,7 @@ export function AppsListV1() {
             apps.map((app) => (
               <Link
                 className="flex min-h-[210px] flex-col overflow-hidden rounded-[18px] border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_2px_var(--dashboard-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--dashboard-accent-border)] hover:shadow-[0_12px_28px_var(--dashboard-shadow)]"
-                href={routes.appDetail(app.id.toString())}
+                href={routes.appDetail(app.code)}
                 key={app.id}
               >
                 <div className="flex h-[104px] shrink-0 items-center justify-center border-b border-[var(--dashboard-border-soft)] bg-[var(--dashboard-panel-subtle)]">

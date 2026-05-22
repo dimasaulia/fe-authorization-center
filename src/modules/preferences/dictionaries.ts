@@ -188,6 +188,38 @@ export const dictionaries = {
     "authz.credentialCreate.description":
       "Create a credential for a specific app environment. The generated raw secret is only shown once.",
     "authz.credentialCreate.formTitle": "Credential details",
+
+    "authz.appDetail.tabs.modules": "Modules",
+    "authz.modules.title": "Modules",
+    "authz.modules.description":
+      "Manage modules inside this app. Each module groups a set of permissions under a namespaced code.",
+    "authz.modules.create": "Create Module",
+    "authz.modules.empty": "No modules yet. Create the first one.",
+    "authz.modules.filter.search": "Search by module name or code",
+    "authz.moduleCreate.title": "Create Module",
+    "authz.moduleCreate.description":
+      "Create a module that groups permissions under a namespaced code within this app.",
+    "authz.moduleCreate.formTitle": "Module identity",
+    "authz.moduleCreate.nameLabel": "Module Name",
+    "authz.moduleCreate.namePlaceholder": "User Management",
+    "authz.moduleCreate.codeLabel": "Module Code",
+    "authz.moduleCreate.codeHint": "Full code will be prefixed with the app code automatically.",
+    "authz.moduleCreate.error": "Failed to create module. Please try again.",
+
+    "authz.moduleEdit.title": "Edit Module",
+    "authz.moduleEdit.description": "Update module identity. The full code prefix cannot be changed.",
+    "authz.moduleEdit.formTitle": "Module identity",
+    "authz.moduleEdit.error": "Failed to update module. Please try again.",
+    "authz.moduleDelete.title": "Delete Module",
+    "authz.moduleDelete.description": "This will permanently delete the module and cannot be undone. Are you sure?",
+    "authz.moduleDelete.error": "Failed to delete module. Please try again.",
+    "authz.modules.edit": "Edit",
+    "authz.modules.delete": "Delete",
+
+    "common.error.notFound": "Resource not found.",
+    "common.error.loadFailed": "Failed to load data. Please try again.",
+    "common.error.saveFailed": "Failed to save. Please try again.",
+    "common.confirm": "Confirm",
   },
   id: {
     "common.language": "Bahasa",
@@ -379,6 +411,38 @@ export const dictionaries = {
     "authz.credentialCreate.description":
       "Buat kredensial untuk environment aplikasi tertentu. Secret mentah yang dihasilkan hanya ditampilkan sekali.",
     "authz.credentialCreate.formTitle": "Detail kredensial",
+
+    "authz.appDetail.tabs.modules": "Modul",
+    "authz.modules.title": "Modul",
+    "authz.modules.description":
+      "Kelola modul di dalam aplikasi ini. Setiap modul mengelompokkan sekumpulan izin di bawah kode bernamespace.",
+    "authz.modules.create": "Buat Modul",
+    "authz.modules.empty": "Belum ada modul. Buat yang pertama.",
+    "authz.modules.filter.search": "Cari berdasarkan nama atau kode modul",
+    "authz.moduleCreate.title": "Buat Modul",
+    "authz.moduleCreate.description":
+      "Buat modul yang mengelompokkan izin di bawah kode bernamespace dalam aplikasi ini.",
+    "authz.moduleCreate.formTitle": "Identitas modul",
+    "authz.moduleCreate.nameLabel": "Nama Modul",
+    "authz.moduleCreate.namePlaceholder": "Manajemen Pengguna",
+    "authz.moduleCreate.codeLabel": "Kode Modul",
+    "authz.moduleCreate.codeHint": "Kode lengkap akan diberi awalan kode aplikasi secara otomatis.",
+    "authz.moduleCreate.error": "Gagal membuat modul. Silakan coba lagi.",
+
+    "authz.moduleEdit.title": "Edit Modul",
+    "authz.moduleEdit.description": "Perbarui identitas modul. Prefix kode lengkap tidak dapat diubah.",
+    "authz.moduleEdit.formTitle": "Identitas modul",
+    "authz.moduleEdit.error": "Gagal memperbarui modul. Silakan coba lagi.",
+    "authz.moduleDelete.title": "Hapus Modul",
+    "authz.moduleDelete.description": "Ini akan menghapus modul secara permanen dan tidak dapat dibatalkan. Apakah Anda yakin?",
+    "authz.moduleDelete.error": "Gagal menghapus modul. Silakan coba lagi.",
+    "authz.modules.edit": "Edit",
+    "authz.modules.delete": "Hapus",
+
+    "common.error.notFound": "Data tidak ditemukan.",
+    "common.error.loadFailed": "Gagal memuat data. Silakan coba lagi.",
+    "common.error.saveFailed": "Gagal menyimpan. Silakan coba lagi.",
+    "common.confirm": "Konfirmasi",
   },
 } as const;
 
