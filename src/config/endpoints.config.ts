@@ -65,4 +65,18 @@ export const endpoints = {
     update: (id: number) => ({ method: "PUT", url: `/api/v1/roles/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/roles/${id}` }),
   },
+  rolePermissions: {
+    list: { method: "GET", url: "/api/v1/role-permissions" },
+    listByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/role-permissions/by-app/${appCode}` }),
+    listByRole: (roleCode: string) => ({ method: "GET", url: `/api/v1/role-permissions/by-role/${roleCode}` }),
+    availablePermissionsByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/role-permissions/available-permissions/by-app/${appCode}` }),
+    roleSummaries: { method: "GET", url: "/api/v1/role-permissions/roles" },
+    roleSummariesByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/role-permissions/roles/by-app/${appCode}` }),
+    detail: (id: number) => ({ method: "GET", url: `/api/v1/role-permissions/${id}` }),
+    create: { method: "POST", url: "/api/v1/role-permissions" },
+    bulkCreate: { method: "POST", url: "/api/v1/role-permissions/bulk" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/role-permissions/${id}` }),
+    updateByRole: (roleId: number) => ({ method: "PUT", url: `/api/v1/role-permissions/by-role/${roleId}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/role-permissions/${id}` }),
+  },
 } as const;

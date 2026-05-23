@@ -108,6 +108,9 @@ export function AppRoleListV1({ appId }: AppRoleListV1Props) {
                           <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRoleEdit(appId, String(role.id))}>
                             {t("authz.roles.edit")}
                           </a>
+                          <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRolePermissionEdit(appId, role.code)}>
+                            {t("authz.rolePermissionEdit.editPermissions")}
+                          </a>
                           <button
                             className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                             disabled={deletingId === role.id}

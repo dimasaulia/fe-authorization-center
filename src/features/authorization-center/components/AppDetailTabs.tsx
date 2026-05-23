@@ -6,7 +6,7 @@ import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 
 type AppDetailTabsProps = {
-  active: "overview" | "credentials" | "modules" | "permissions" | "menus" | "roles" | "settings";
+  active: "overview" | "credentials" | "modules" | "permissions" | "menus" | "roles" | "role-permissions" | "settings";
   appId: string;
 };
 
@@ -25,6 +25,7 @@ export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
     { key: "permissions", label: t("authz.appDetail.tabs.permissions"), href: routes.appPermissions(appId) },
     { key: "menus", label: t("authz.appDetail.tabs.menus"), href: routes.appMenus(appId) },
     { key: "roles", label: t("authz.appDetail.tabs.roles"), href: routes.appRoles(appId) },
+    { key: "role-permissions", label: t("authz.appDetail.tabs.rolePermissions"), href: routes.appRolePermissions(appId) },
     { key: "settings", label: t("authz.appDetail.tabs.settings"), href: routes.appSettings(appId) },
   ] as const;
 
