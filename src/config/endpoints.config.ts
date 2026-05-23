@@ -49,4 +49,12 @@ export const endpoints = {
     update: (id: number) => ({ method: "PUT", url: `/api/v1/permissions/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/permissions/${id}` }),
   },
+  menus: {
+    list: { method: "GET", url: "/api/v1/menus" },
+    listByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/menus/by-app/${appCode}` }),
+    detail: (id: number) => ({ method: "GET", url: `/api/v1/menus/${id}` }),
+    bulkCreate: { method: "POST", url: "/api/v1/menus/bulk" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/menus/${id}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/menus/${id}` }),
+  },
 } as const;
