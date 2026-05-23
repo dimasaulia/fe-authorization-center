@@ -57,4 +57,12 @@ export const endpoints = {
     update: (id: number) => ({ method: "PUT", url: `/api/v1/menus/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/menus/${id}` }),
   },
+  roles: {
+    list: { method: "GET", url: "/api/v1/roles" },
+    listByApp: (appCode: string) => ({ method: "GET", url: `/api/v1/roles/by-app/${appCode}` }),
+    detail: (id: number) => ({ method: "GET", url: `/api/v1/roles/${id}` }),
+    create: { method: "POST", url: "/api/v1/roles" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/roles/${id}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/roles/${id}` }),
+  },
 } as const;

@@ -6,12 +6,11 @@ import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 
 type AppDetailTabsProps = {
-  active: "overview" | "credentials" | "modules" | "permissions" | "menus" | "settings";
+  active: "overview" | "credentials" | "modules" | "permissions" | "menus" | "roles" | "settings";
   appId: string;
 };
 
 const disabledItems = [
-  "Roles",
   "Users & Teams",
   "Audit",
 ];
@@ -25,6 +24,7 @@ export function AppDetailTabs({ active, appId }: AppDetailTabsProps) {
     { key: "modules", label: t("authz.appDetail.tabs.modules"), href: routes.appModules(appId) },
     { key: "permissions", label: t("authz.appDetail.tabs.permissions"), href: routes.appPermissions(appId) },
     { key: "menus", label: t("authz.appDetail.tabs.menus"), href: routes.appMenus(appId) },
+    { key: "roles", label: t("authz.appDetail.tabs.roles"), href: routes.appRoles(appId) },
     { key: "settings", label: t("authz.appDetail.tabs.settings"), href: routes.appSettings(appId) },
   ] as const;
 

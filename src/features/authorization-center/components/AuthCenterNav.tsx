@@ -6,7 +6,7 @@ import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 
 type AuthCenterNavProps = {
-  active: "apps" | "teams" | "actions";
+  active: "apps" | "teams" | "actions" | "roles";
 };
 
 export function AuthCenterNav({ active }: AuthCenterNavProps) {
@@ -16,6 +16,7 @@ export function AuthCenterNav({ active }: AuthCenterNavProps) {
     { key: "apps", label: t("authz.nav.apps"), href: routes.apps },
     { key: "teams", label: t("authz.nav.teams"), href: routes.teams },
     { key: "actions", label: t("authz.nav.actions"), href: routes.actions },
+    { key: "roles", label: t("authz.nav.roles"), href: routes.roles },
   ] as const;
 
   return (
