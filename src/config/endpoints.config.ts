@@ -9,8 +9,13 @@ export const endpoints = {
     menus: "/authorization/menus",
   },
   user: {
-    list: "/users",
-    detail: (id: string) => `/users/${id}`,
+    list: { method: "GET", url: "/api/v1/users" },
+    detail: (id: number) => ({ method: "GET", url: `/api/v1/users/${id}` }),
+    create: { method: "POST", url: "/api/v1/users" },
+    update: (id: number) => ({ method: "PUT", url: `/api/v1/users/${id}` }),
+    delete: (id: number) => ({ method: "DELETE", url: `/api/v1/users/${id}` }),
+    signup: { method: "POST", url: "/api/v1/users/signup" },
+    verifyEmail: { method: "GET", url: "/api/v1/users/verify-email" },
   },
   apps: {
     list: { method: "GET", url: "/api/v1/apps" },
