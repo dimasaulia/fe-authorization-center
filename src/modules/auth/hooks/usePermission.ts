@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  canAccess,
-  demoAccessSnapshot,
-  type Permission,
-} from "@/modules/auth/services/access-snapshot.service";
+/**
+ * @deprecated Use `usePermission` from `@/modules/opensuite-sdk` directly.
+ * This file is kept for backward compatibility.
+ */
 
-export function usePermission(permission: Permission) {
-  return canAccess(demoAccessSnapshot, permission);
-}
+export { usePermission } from "@/modules/opensuite-sdk";

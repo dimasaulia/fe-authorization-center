@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
-import { getAuthorizedMenu } from "@/modules/opensuite-sdk/authorization";
+import { useAuthorization, useAuth } from "@/modules/opensuite-sdk";
+import { fallbackMenu, mapMenuEntriesToAppMenu } from "@/config/menu.config";
 import { AppIcon, type AppIconName } from "@/shared/components/AppIcon";
+import type { AppMenuItem } from "@/types/menu.type";
 
 import { DashboardTopbar } from "./components/DashboardTopbar";
 
@@ -9,7 +13,14 @@ type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const menu = getAuthorizedMenu();
+  const { menus, isLoaded } = useAuthorization();
+  const { logout } = useAuth();
+
+  // Use SDK menus if loaded, otherwise fallback
+  const menu: AppMenuItem[] = isLoaded && menus.length > 0
+    ? mapMenuEntriesToAppMenu(menus)
+    : fallbackMenu;
+
   const getMenuIcon = (href: string): AppIconName => {
     if (href.includes("users")) return "people";
     if (href.includes("apps")) return "shield";
@@ -17,6 +28,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (href.includes("actions")) return "calculator";
 
     return "mail";
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/login";
   };
 
   return (
@@ -61,13 +77,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             <AppIcon className="h-[17px] w-[17px]" name="user" />
           </Link>
-          <Link
+          <button
             aria-label="Logout"
             className="flex h-[38px] w-[38px] items-center justify-center rounded-xl text-[var(--dashboard-text)] transition hover:bg-[var(--dashboard-panel-subtle)]"
-            href="/login"
+            onClick={handleLogout}
+            type="button"
           >
             <AppIcon className="h-[18px] w-[18px]" name="logout" />
-          </Link>
+          </button>
         </aside>
         <section className="flex min-h-0 min-w-0 flex-1 flex-col">
           <DashboardTopbar />

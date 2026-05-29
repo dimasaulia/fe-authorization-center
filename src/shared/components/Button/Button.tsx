@@ -3,6 +3,7 @@ import Link from "next/link";
 type ButtonProps = {
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
   fullWidth?: boolean;
   href?: string;
   type?: "button" | "submit" | "reset";
@@ -20,6 +21,7 @@ const variants = {
 export function Button({
   children,
   className = "",
+  disabled = false,
   fullWidth = false,
   href,
   type = "button",
@@ -28,6 +30,7 @@ export function Button({
   const buttonClassName = [
     "inline-flex h-[46px] items-center justify-center rounded-xl px-4 text-sm font-semibold transition",
     fullWidth ? "w-full" : "",
+    disabled ? "opacity-50 cursor-not-allowed" : "",
     variants[variant],
     className,
   ]
@@ -43,7 +46,7 @@ export function Button({
   }
 
   return (
-    <button className={buttonClassName} type={type}>
+    <button className={buttonClassName} disabled={disabled} type={type}>
       {children}
     </button>
   );

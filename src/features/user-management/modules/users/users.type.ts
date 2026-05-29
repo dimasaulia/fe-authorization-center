@@ -55,8 +55,6 @@ export type UserCreatePayload = {
   password?: string;
   must_change_password?: boolean;
   send_invitation?: boolean;
-  create_in_keycloak?: boolean;
-  create_in_freeipa?: boolean;
   role_ids?: number[];
   team_ids?: number[];
 };

@@ -1,7 +1,10 @@
-import type { Permission } from "@/modules/auth/services/access-snapshot.service";
-
+/**
+ * Menu type used internally by the app for rendering.
+ * Maps from the authorization server's MenuEntry format.
+ */
 export type AppMenuItem = {
   label: string;
   href: string;
-  permission: Permission;
+  permission: string;
+  code: string;
 };

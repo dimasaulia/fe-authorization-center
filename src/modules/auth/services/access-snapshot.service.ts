@@ -1,31 +1,22 @@
-export type Permission =
-  | "dashboard.view"
-  | "user.list"
-  | "user.create"
-  | "user.delete"
-  | "settings.view"
-  | "authorization.apps.view"
-  | "authorization.teams.view"
-  | "authorization.actions.view";
+/**
+ * @deprecated Use types and functions from `@/modules/opensuite-sdk` directly.
+ * This file is kept for backward compatibility.
+ */
 
-export type AccessSnapshot = {
-  permissions: Permission[];
-};
+export type { AccessSnapshot, MenuEntry } from "@/modules/opensuite-sdk";
 
-export const demoAccessSnapshot: AccessSnapshot = {
-  permissions: [
-    "dashboard.view",
-    "user.list",
-    "user.create",
-    "authorization.apps.view",
-    "authorization.teams.view",
-    "authorization.actions.view",
-  ],
-};
+// Re-export Permission as a string type for backward compat
+export type Permission = string;
 
+// Legacy canAccess function - now delegates to SDK
 export function canAccess(
-  snapshot: AccessSnapshot,
-  permission: Permission,
+  snapshot: { permissions: string[] },
+  permission: string,
 ): boolean {
   return snapshot.permissions.includes(permission);
 }
+
+// Legacy demo snapshot - no longer used in production
+export const demoAccessSnapshot = {
+  permissions: [] as string[],
+};

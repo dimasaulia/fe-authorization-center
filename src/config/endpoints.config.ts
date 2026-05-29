@@ -1,13 +1,9 @@
+import { AUTH_SERVER_ENDPOINTS, INTERNAL_API_ROUTES } from "@/modules/opensuite-sdk/constants";
+
 export const endpoints = {
-  auth: {
-    session: "/auth/session",
-    login: "/auth/login",
-    logout: "/auth/logout",
-  },
-  authorization: {
-    snapshot: "/authorization/access-snapshot",
-    menus: "/authorization/menus",
-  },
+  auth: AUTH_SERVER_ENDPOINTS,
+  /** Internal Next.js API routes for secure cookie management */
+  internal: INTERNAL_API_ROUTES,
   user: {
     list: { method: "GET", url: "/api/v1/users" },
     detail: (id: number) => ({ method: "GET", url: `/api/v1/users/${id}` }),

@@ -18,8 +18,6 @@ export function UserCreateV1() {
     status, setStatus,
     mustChangePassword, setMustChangePassword,
     sendInvitation, setSendInvitation,
-    createInKeycloak, setCreateInKeycloak,
-    createInFreeipa, setCreateInFreeipa,
     availableRoles, assignedRoles,
     roleSearch, roleSearchLoading,
     handleRoleSearch, assignRole, unassignRole,
@@ -158,24 +156,7 @@ export function UserCreateV1() {
                 <span className="text-sm text-[var(--dashboard-text)]">{t("users.create.sendInvitation")}</span>
               </label>
             )}
-            <label className="flex cursor-pointer items-center gap-3">
-              <input
-                checked={createInKeycloak}
-                className="h-4 w-4 rounded border-[var(--dashboard-border-soft)] accent-[var(--dashboard-accent)]"
-                onChange={(e) => setCreateInKeycloak(e.target.checked)}
-                type="checkbox"
-              />
-              <span className="text-sm text-[var(--dashboard-text)]">{t("users.create.createInKeycloak")}</span>
-            </label>
-            <label className="flex cursor-pointer items-center gap-3">
-              <input
-                checked={createInFreeipa}
-                className="h-4 w-4 rounded border-[var(--dashboard-border-soft)] accent-[var(--dashboard-accent)]"
-                onChange={(e) => setCreateInFreeipa(e.target.checked)}
-                type="checkbox"
-              />
-              <span className="text-sm text-[var(--dashboard-text)]">{t("users.create.createInFreeipa")}</span>
-            </label>
+
           </div>
         </div>
 

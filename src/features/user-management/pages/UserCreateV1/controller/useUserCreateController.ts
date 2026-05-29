@@ -26,8 +26,6 @@ export function useUserCreateController() {
   const [status, setStatus] = useState<UserStatus>("active");
   const [mustChangePassword, setMustChangePassword] = useState(true);
   const [sendInvitation, setSendInvitation] = useState(false);
-  const [createInKeycloak, setCreateInKeycloak] = useState(true);
-  const [createInFreeipa, setCreateInFreeipa] = useState(false);
 
   // Role assignment
   const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
@@ -203,8 +201,6 @@ export function useUserCreateController() {
       display_name: displayName,
       type,
       status,
-      create_in_keycloak: createInKeycloak,
-      create_in_freeipa: createInFreeipa,
       role_ids: assignedRoles.map((r) => r.id),
       team_ids: assignedTeams.map((t) => t.id),
     };
@@ -228,7 +224,7 @@ export function useUserCreateController() {
       });
   }, [
     username, email, displayName, password, type, status,
-    mustChangePassword, sendInvitation, createInKeycloak, createInFreeipa,
+    mustChangePassword, sendInvitation,
     assignedRoles, assignedTeams, language, t, router,
   ]);
 
@@ -245,8 +241,6 @@ export function useUserCreateController() {
     status, setStatus,
     mustChangePassword, setMustChangePassword,
     sendInvitation, setSendInvitation,
-    createInKeycloak, setCreateInKeycloak,
-    createInFreeipa, setCreateInFreeipa,
     // Roles
     availableRoles, assignedRoles,
     roleSearch, roleSearchLoading,
