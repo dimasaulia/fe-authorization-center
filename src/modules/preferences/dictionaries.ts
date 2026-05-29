@@ -9,6 +9,7 @@ export const dictionaries = {
 
     "dashboard.search": "Search apps, documents, mail...",
     "dashboard.login": "Login",
+    "dashboard.logout": "Logout",
     "dashboard.workspace": "My workspace",
     "dashboard.welcome": "Good afternoon, Dimas",
     "dashboard.description":
@@ -440,6 +441,7 @@ export const dictionaries = {
 
     "dashboard.search": "Cari aplikasi, dokumen, email...",
     "dashboard.login": "Login",
+    "dashboard.logout": "Keluar",
     "dashboard.workspace": "Workspace saya",
     "dashboard.welcome": "Selamat siang, Dimas",
     "dashboard.description":

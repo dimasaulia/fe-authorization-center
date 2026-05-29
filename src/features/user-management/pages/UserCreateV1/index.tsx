@@ -44,7 +44,6 @@ export function UserCreateV1() {
         title={t("users.create.title")}
       />
 
-      <AuthCenterNav active="users" />
 
       <div className="space-y-5">
         {submitError && (

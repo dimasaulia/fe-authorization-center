@@ -40,10 +40,10 @@ export function RouteGuard({
   unauthorized,
   children,
 }: RouteGuardProps) {
-  const { auth, authorization, hasPermission, hasAnyPermission } = useOpenSuite();
+  const { isAuthenticated, isAccessLoaded, hasPermission, hasAnyPermission } = useOpenSuite();
   const config = getOpenSuiteConfig();
 
-  const isLoading = auth.isLoading || (auth.isAuthenticated && !authorization.isLoaded);
+  const isLoading = isAuthenticated && !isAccessLoaded;
 
   // Determine if user has required permission
   let allowed = true;
@@ -55,31 +55,31 @@ export function RouteGuard({
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!auth.isLoading && !auth.isAuthenticated) {
+    if (!isAuthenticated) {
       const loginRoute = redirectTo ?? config.loginRoute ?? "/login";
       window.location.assign(loginRoute);
     }
-  }, [auth.isLoading, auth.isAuthenticated, redirectTo, config.loginRoute]);
+  }, [isAuthenticated, redirectTo, config.loginRoute]);
 
   // Redirect if not authorized (and no unauthorized fallback provided)
   useEffect(() => {
     if (
       !isLoading &&
-      auth.isAuthenticated &&
-      authorization.isLoaded &&
+      isAuthenticated &&
+      isAccessLoaded &&
       !allowed &&
       !unauthorized
     ) {
       const defaultRoute = config.defaultRoute ?? "/dashboard";
       window.location.assign(defaultRoute);
     }
-  }, [isLoading, auth.isAuthenticated, authorization.isLoaded, allowed, unauthorized, config.defaultRoute]);
+  }, [isLoading, isAuthenticated, isAccessLoaded, allowed, unauthorized, config.defaultRoute]);
 
-  if (isLoading) {
+  if (!isAuthenticated) {
     return <>{loading}</>;
   }
 
-  if (!auth.isAuthenticated) {
+  if (isLoading) {
     return <>{loading}</>;
   }
 

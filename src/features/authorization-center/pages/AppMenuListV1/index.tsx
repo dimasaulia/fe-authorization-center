@@ -2,6 +2,7 @@
 
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
+import { Can } from "@/modules/opensuite-sdk";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 
@@ -52,9 +53,11 @@ export function AppMenuListV1({ appId }: AppMenuListV1Props) {
               type="search"
               value={search}
             />
-            <Button href={routes.appMenuCreate(appId)} variant="primary">
-              {t("authz.menus.create")}
-            </Button>
+            <Can permission="authorization-center.menu-and-routes.write">
+              <Button href={routes.appMenuCreate(appId)} variant="primary">
+                {t("authz.menus.create")}
+              </Button>
+            </Can>
           </div>
 
           {/* Error */}
@@ -122,20 +125,24 @@ export function AppMenuListV1({ appId }: AppMenuListV1Props) {
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-3">
-                          <a
-                            className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline"
-                            href={routes.appMenuEdit(appId, String(menu.id))}
-                          >
-                            {t("authz.menus.edit")}
-                          </a>
-                          <button
-                            className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                            disabled={deletingId === menu.id}
-                            onClick={() => confirmDelete(menu.id)}
-                            type="button"
-                          >
-                            {deletingId === menu.id ? "..." : t("authz.menus.delete")}
-                          </button>
+                          <Can permission="authorization-center.menu-and-routes.update">
+                            <a
+                              className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline"
+                              href={routes.appMenuEdit(appId, String(menu.id))}
+                            >
+                              {t("authz.menus.edit")}
+                            </a>
+                          </Can>
+                          <Can permission="authorization-center.menu-and-routes.delete">
+                            <button
+                              className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                              disabled={deletingId === menu.id}
+                              onClick={() => confirmDelete(menu.id)}
+                              type="button"
+                            >
+                              {deletingId === menu.id ? "..." : t("authz.menus.delete")}
+                            </button>
+                          </Can>
                         </div>
                       </td>
                     </tr>

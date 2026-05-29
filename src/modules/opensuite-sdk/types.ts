@@ -123,3 +123,41 @@ export interface TokenPayload {
   };
   [key: string]: unknown;
 }
+
+// --- User Profile Types ---
+
+export interface UserProfile {
+  id: number;
+  organization_id: number;
+  username: string;
+  email: string;
+  display_name: string;
+  type: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserProvider {
+  provider: string;
+  is_primary: boolean;
+}
+
+export interface UserAppAccess {
+  code: string;
+  name: string;
+  permission_count: number;
+}
+
+export interface UserProfileData {
+  user: UserProfile;
+  providers: UserProvider[];
+  app_access_count: number;
+  apps: UserAppAccess[];
+}
+
+export interface UserProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfileData;
+}

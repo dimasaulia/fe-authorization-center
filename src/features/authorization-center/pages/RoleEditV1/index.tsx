@@ -25,7 +25,6 @@ export function RoleEditV1({ roleId }: RoleEditV1Props) {
   return (
     <div className="space-y-6">
       <AuthCenterHeader description={t("authz.roleEdit.description")} title={t("authz.roleEdit.title")} />
-      <AuthCenterNav active="roles" />
 
       <div className="mx-auto max-w-xl">
         <div className="overflow-hidden rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_3px_var(--dashboard-shadow)]">

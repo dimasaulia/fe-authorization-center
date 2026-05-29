@@ -1,19 +1,24 @@
 export type AppIconName =
+  | "apps"
   | "box"
   | "briefcase"
   | "calculator"
+  | "dashboard"
   | "document"
   | "folder"
+  | "key"
   | "logout"
   | "mail"
   | "menu"
   | "package"
   | "people"
+  | "roles"
   | "search"
   | "settings"
   | "shield"
   | "user"
-  | "wifi";
+  | "wifi"
+  | "zap";
 
 type AppIconProps = {
   className?: string;
@@ -21,6 +26,14 @@ type AppIconProps = {
 };
 
 const paths: Record<AppIconName, React.ReactNode> = {
+  apps: (
+    <>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </>
+  ),
   box: (
     <>
       <path d="M12 4L19 7.5V16.5L12 20L5 16.5V7.5L12 4Z" />
@@ -40,6 +53,14 @@ const paths: Record<AppIconName, React.ReactNode> = {
       <path d="M8.5 8H15.5M8.5 12H9M12 12H13M15.5 12H15.6M8.5 15.5H9M12 15.5H13M15.5 15.5H15.6" />
     </>
   ),
+  dashboard: (
+    <>
+      <path d="M4 5.5C4 4.7 4.7 4 5.5 4H10V11H4V5.5Z" />
+      <path d="M4 13H10V20H5.5C4.7 20 4 19.3 4 18.5V13Z" />
+      <path d="M12 4H18.5C19.3 4 20 4.7 20 5.5V9H12V4Z" />
+      <path d="M12 11H20V18.5C20 19.3 19.3 20 18.5 20H12V11Z" />
+    </>
+  ),
   document: (
     <>
       <path d="M6 5.5C6 4.7 6.7 4 7.5 4H13L18 9V18.5C18 19.3 17.3 20 16.5 20H7.5C6.7 20 6 19.3 6 18.5V5.5Z" />
@@ -50,6 +71,13 @@ const paths: Record<AppIconName, React.ReactNode> = {
     <>
       <path d="M5 6.7C5 5.8 5.8 5 6.7 5H11L13.2 7.2H17.3C18.2 7.2 19 8 19 8.9V17.3C19 18.2 18.2 19 17.3 19H6.7C5.8 19 5 18.2 5 17.3V6.7Z" />
       <path d="M8 12H16M8 15H13" />
+    </>
+  ),
+  key: (
+    <>
+      <circle cx="15" cy="9" r="4" />
+      <path d="M12 12L5 19M5 19L7.5 19M5 19L5 16.5" />
+      <path d="M9 15L7 17" />
     </>
   ),
   logout: (
@@ -83,6 +111,11 @@ const paths: Record<AppIconName, React.ReactNode> = {
       <path d="M15 11C16.7 11 18 9.7 18 8C18 6.3 16.7 5 15 5M16 14C17.8 14.4 18.9 15.8 19.5 18" />
     </>
   ),
+  roles: (
+    <>
+      <path d="M12 4L14.5 9H19.5L15.5 12.5L17 18L12 15L7 18L8.5 12.5L4.5 9H9.5L12 4Z" />
+    </>
+  ),
   search: (
     <>
       <circle cx="10.5" cy="10.5" r="5.5" />
@@ -113,6 +146,11 @@ const paths: Record<AppIconName, React.ReactNode> = {
       <path d="M5 10C9.5 6.5 14.5 6.5 19 10" />
       <path d="M8 13C10.6 11 13.4 11 16 13" />
       <path d="M11.5 16.5H12.5" />
+    </>
+  ),
+  zap: (
+    <>
+      <path d="M13 2L4.5 13H12L11 22L19.5 11H12L13 2Z" />
     </>
   ),
 };

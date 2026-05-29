@@ -3,12 +3,13 @@
 /**
  * OpenSuite SDK - Auth Provider
  * 
- * Manages the full authentication and authorization lifecycle:
- * 1. Auth tokens (access + refresh) stored in httpOnly cookies via API routes
- * 2. Authorization snapshot (permissions + menus) stored in sessionStorage
- * 3. Periodic refresh of access snapshot
- * 4. Re-fetch on hard reload (sessionStorage is cleared)
- * 5. Auto-refresh of auth tokens before expiry
+ * Simplified provider using zustand for state + periodic token refresh.
+ * 
+ * Key behaviors:
+ * - Access token persisted in sessionStorage (survives hard reload)
+ * - Periodic refresh keeps token fresh (runs every N seconds before expiry)
+ * - If refresh fails → redirect to login
+ * - On mount: always re-fetch access snapshot for fresh permissions/menus
  */
 
 import {
@@ -18,24 +19,14 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from "react";
-import { getOpenSuiteConfig, initOpenSuite } from "./config";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { initOpenSuite } from "./config";
 import { DEFAULTS, INTERNAL_API_ROUTES } from "./constants";
-import {
-  clearAllStorage,
-  getStoredAccessSnapshot,
-  storeAccessSnapshot,
-  storeAuthSession,
-  type StoredAccessData,
-} from "./storage";
+import { useAuthStore } from "./auth-store";
 import { decodeJwtPayload } from "./token-utils";
-import { setAccessToken, clearTokenStore, onTokenExpired } from "./token-store";
 import type {
-  AccessSnapshot,
-  AuthorizationState,
-  AuthState,
   LoginCredentials,
   MenuEntry,
   OpenSuiteConfig,
@@ -45,29 +36,28 @@ import type {
 // --- Context Types ---
 
 interface OpenSuiteContextValue {
-  /** Authentication state */
-  auth: AuthState;
-  /** Authorization state (permissions + menus) */
-  authorization: AuthorizationState;
-  /** Login with credentials */
-  login: (credentials: LoginCredentials) => Promise<void>;
-  /** Logout and clear all state */
-  logout: () => Promise<void>;
-  /** Check if user has a specific permission */
-  hasPermission: (permission: string) => boolean;
-  /** Check if user has any of the given permissions */
-  hasAnyPermission: (permissions: string[]) => boolean;
-  /** Check if user has all of the given permissions */
-  hasAllPermissions: (permissions: string[]) => boolean;
-  /** Get authorized menus */
-  menus: MenuEntry[];
-  /** Force re-fetch access snapshot */
-  refreshAccess: () => Promise<void>;
-  /** Current user info decoded from id_token */
+  isAuthenticated: boolean;
+  isLoading: boolean;
   user: TokenPayload | null;
+  permissions: string[];
+  menus: MenuEntry[];
+  isAccessLoaded: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => Promise<void>;
+  hasPermission: (permission: string) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
+  hasAllPermissions: (permissions: string[]) => boolean;
+  refreshAccess: () => Promise<void>;
 }
 
 const OpenSuiteContext = createContext<OpenSuiteContextValue | null>(null);
+
+// --- QueryClient singleton ---
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, refetchOnWindowFocus: false },
+  },
+});
 
 // --- Provider Props ---
 
@@ -76,168 +66,123 @@ interface OpenSuiteProviderProps {
   config: OpenSuiteConfig;
 }
 
-// --- Helper functions (outside component, no hooks rules apply) ---
-
-async function fetchAccessFromServer(): Promise<AccessSnapshot | null> {
-  try {
-    const res = await fetch(INTERNAL_API_ROUTES.ACCESS);
-    if (!res.ok) {
-      if (res.status === 401) {
-        const refreshResult = await doRefreshAuthToken();
-        if (!refreshResult.success) return null;
-        const retryRes = await fetch(INTERNAL_API_ROUTES.ACCESS);
-        if (!retryRes.ok) return null;
-        const retryData = await retryRes.json();
-        return retryData.success ? retryData.data : null;
-      }
-      return null;
-    }
-    const data = await res.json();
-    return data.success ? data.data : null;
-  } catch {
-    return null;
-  }
-}
-
-async function doRefreshAuthToken(): Promise<{
-  success: boolean;
-  expiresIn?: number;
-  sessionState?: string;
-  accessToken?: string;
-}> {
-  try {
-    const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
-    if (!res.ok) return { success: false };
-    const data = await res.json();
-    if (data.success) {
-      return {
-        success: true,
-        expiresIn: data.data.expires_in,
-        sessionState: data.data.session_state,
-        accessToken: data.data.access_token,
-      };
-    }
-    return { success: false };
-  } catch {
-    return { success: false };
-  }
-}
-
 // --- Provider Component ---
 
 export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) {
-  // Initialize SDK config
+  // Initialize SDK config (sync, runs once)
   useMemo(() => {
     initOpenSuite(config);
   }, [config]);
 
-  const [auth, setAuth] = useState<AuthState>({
-    isAuthenticated: false,
-    isLoading: true,
-    user: null,
-  });
-
-  const [authorization, setAuthorization] = useState<AuthorizationState>({
-    permissions: [],
-    menus: [],
-    isLoaded: false,
-  });
-
-  // Track desired auth refresh time (seconds until expiry)
-  const [authExpiresIn, setAuthExpiresIn] = useState<number | null>(null);
+  const {
+    accessToken,
+    isAuthenticated,
+    user,
+    permissions,
+    menus,
+    isAccessLoaded,
+    setTokens,
+    setAccess,
+    clearAuth,
+  } = useAuthStore();
 
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const authRefreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRefreshingRef = useRef(false);
 
-  // --- Internal: Load and store access data ---
-  const loadAccessData = useCallback(async () => {
-    const snapshot = await fetchAccessFromServer();
-    if (snapshot) {
-      const storedData: StoredAccessData = {
-        permissions: snapshot.permissions,
-        menus: snapshot.menus,
-        fetchedAt: Date.now(),
-      };
-      storeAccessSnapshot(storedData);
-      setAuthorization({
-        permissions: snapshot.permissions,
-        menus: snapshot.menus,
-        isLoaded: true,
-      });
-    }
-  }, []);
-
-  // --- Internal: Perform logout ---
-  const performLogout = useCallback(async () => {
-    if (refreshIntervalRef.current) {
-      clearInterval(refreshIntervalRef.current);
-      refreshIntervalRef.current = null;
-    }
-    if (authRefreshTimeoutRef.current) {
-      clearTimeout(authRefreshTimeoutRef.current);
-      authRefreshTimeoutRef.current = null;
-    }
-    clearAllStorage();
-    clearTokenStore();
-    setAuth({ isAuthenticated: false, isLoading: false, user: null });
-    setAuthorization({ permissions: [], menus: [], isLoaded: false });
-    setAuthExpiresIn(null);
+  // --- Refresh auth token ---
+  const refreshAuthToken = useCallback(async (): Promise<boolean> => {
+    if (isRefreshingRef.current) return true;
+    isRefreshingRef.current = true;
 
     try {
-      await fetch(INTERNAL_API_ROUTES.LOGOUT, { method: "POST" });
-    } catch {
-      // Best effort
-    }
-  }, []);
-
-  // --- Auth token refresh effect (triggered by authExpiresIn changes) ---
-  useEffect(() => {
-    if (authExpiresIn === null) return;
-
-    if (authRefreshTimeoutRef.current) {
-      clearTimeout(authRefreshTimeoutRef.current);
-    }
-
-    const refreshIn = Math.max(
-      (authExpiresIn - DEFAULTS.AUTH_REFRESH_BUFFER_SECONDS) * 1000,
-      DEFAULTS.MIN_REFRESH_TIMEOUT_MS,
-    );
-
-    authRefreshTimeoutRef.current = setTimeout(async () => {
-      const result = await doRefreshAuthToken();
-      if (result.success && result.expiresIn && result.sessionState) {
-        // Update in-memory token
-        if (result.accessToken) {
-          setAccessToken(result.accessToken);
-        }
-        storeAuthSession({
-          expiresAt: Date.now() + result.expiresIn * 1000,
-          sessionState: result.sessionState,
+      const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
+      if (!res.ok) {
+        // Refresh token expired → clear and redirect
+        clearAuth();
+        window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+        return false;
+      }
+      const data = await res.json();
+      if (data.success && data.data.access_token) {
+        const user = data.data.id_token
+          ? decodeJwtPayload(data.data.id_token)
+          : undefined;
+        setTokens({
+          accessToken: data.data.access_token,
+          expiresIn: data.data.expires_in,
+          sessionState: data.data.session_state,
+          user,
         });
-        // Trigger re-schedule by updating state
-        setAuthExpiresIn(result.expiresIn);
-      } else {
-        // Session expired
-        await performLogout();
+        return true;
       }
-    }, refreshIn);
+      // Refresh failed
+      clearAuth();
+      window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+      return false;
+    } catch {
+      clearAuth();
+      window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+      return false;
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [clearAuth, setTokens, config.loginRoute]);
 
-    return () => {
-      if (authRefreshTimeoutRef.current) {
-        clearTimeout(authRefreshTimeoutRef.current);
-        authRefreshTimeoutRef.current = null;
+  // --- Fetch access snapshot ---
+  const fetchAccess = useCallback(async () => {
+    try {
+      const res = await fetch(INTERNAL_API_ROUTES.ACCESS);
+      if (!res.ok) {
+        if (res.status === 401) {
+          // Try refresh first
+          const refreshed = await refreshAuthToken();
+          if (!refreshed) return;
+          const retryRes = await fetch(INTERNAL_API_ROUTES.ACCESS);
+          if (!retryRes.ok) return;
+          const retryData = await retryRes.json();
+          if (retryData.success) {
+            setAccess({
+              permissions: retryData.data.permissions,
+              menus: retryData.data.menus,
+            });
+          }
+          return;
+        }
+        return;
       }
-    };
-  }, [authExpiresIn, performLogout]);
+      const data = await res.json();
+      if (data.success) {
+        setAccess({
+          permissions: data.data.permissions,
+          menus: data.data.menus,
+        });
+      }
+    } catch {
+      // Silent fail
+    }
+  }, [refreshAuthToken, setAccess]);
 
-  // --- Access snapshot periodic refresh effect ---
-  useEffect(() => {
-    if (!auth.isAuthenticated) return;
-
-    const interval = getOpenSuiteConfig().accessTokenRefreshInterval ?? DEFAULTS.ACCESS_REFRESH_INTERVAL_MS;
+  // --- Start periodic refresh ---
+  const startPeriodicRefresh = useCallback(() => {
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
+    // Refresh token every 80% of the token lifetime (or every 4 min as fallback)
+    const interval = config.accessTokenRefreshInterval ?? DEFAULTS.ACCESS_REFRESH_INTERVAL_MS;
     refreshIntervalRef.current = setInterval(() => {
-      loadAccessData();
+      refreshAuthToken();
     }, interval);
+  }, [refreshAuthToken, config.accessTokenRefreshInterval]);
+
+  // --- Initialization on mount ---
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Always re-fetch access on mount (hard reload gets fresh permissions/menus)
+    fetchAccess();
+
+    // Start periodic token refresh
+    startPeriodicRefresh();
 
     return () => {
       if (refreshIntervalRef.current) {
@@ -245,93 +190,7 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
         refreshIntervalRef.current = null;
       }
     };
-  }, [auth.isAuthenticated, loadAccessData]);
-
-  // --- Initialization: Check session on mount / hard reload ---
-  useEffect(() => {
-    let mounted = true;
-
-    async function initialize() {
-      try {
-        const res = await fetch(INTERNAL_API_ROUTES.SESSION);
-        const data = await res.json();
-
-        if (!data.success || !data.data.authenticated) {
-          if (mounted) {
-            setAuth({ isAuthenticated: false, isLoading: false, user: null });
-          }
-          return;
-        }
-
-        // We have a session - refresh to get a fresh access token in memory
-        const refreshResult = await doRefreshAuthToken();
-        if (refreshResult.success && refreshResult.accessToken) {
-          setAccessToken(refreshResult.accessToken);
-
-          if (refreshResult.expiresIn && refreshResult.sessionState) {
-            storeAuthSession({
-              expiresAt: Date.now() + refreshResult.expiresIn * 1000,
-              sessionState: refreshResult.sessionState,
-            });
-            if (mounted) {
-              setAuthExpiresIn(refreshResult.expiresIn);
-            }
-          }
-        }
-
-        if (mounted) {
-          setAuth({
-            isAuthenticated: true,
-            isLoading: false,
-            user: null,
-          });
-        }
-
-        // Register token expired handler
-        onTokenExpired(async () => {
-          const result = await doRefreshAuthToken();
-          if (result.success && result.accessToken) {
-            setAccessToken(result.accessToken);
-            if (result.expiresIn && result.sessionState) {
-              storeAuthSession({
-                expiresAt: Date.now() + result.expiresIn * 1000,
-                sessionState: result.sessionState,
-              });
-              if (mounted) {
-                setAuthExpiresIn(result.expiresIn);
-              }
-            }
-          } else {
-            await performLogout();
-          }
-        });
-
-        // On hard reload, always re-fetch access snapshot for fresh permissions
-        const storedAccess = getStoredAccessSnapshot();
-        if (!storedAccess) {
-          await loadAccessData();
-        } else {
-          if (mounted) {
-            setAuthorization({
-              permissions: storedAccess.permissions,
-              menus: storedAccess.menus,
-              isLoaded: true,
-            });
-          }
-        }
-      } catch {
-        if (mounted) {
-          setAuth({ isAuthenticated: false, isLoading: false, user: null });
-        }
-      }
-    }
-
-    initialize();
-
-    return () => {
-      mounted = false;
-    };
-  }, [loadAccessData, performLogout]);
+  }, [isAuthenticated, fetchAccess, startPeriodicRefresh]);
 
   // --- Public: Login ---
   const login = useCallback(
@@ -348,78 +207,83 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
         throw new Error(data.message || "Login failed");
       }
 
-      // Store access token in memory for apiClient usage
-      if (data.data.access_token) {
-        setAccessToken(data.data.access_token);
-      }
-
-      const user = data.data.id_token
+      const decodedUser = data.data.id_token
         ? decodeJwtPayload(data.data.id_token)
         : null;
 
-      storeAuthSession({
-        expiresAt: Date.now() + data.data.expires_in * 1000,
+      setTokens({
+        accessToken: data.data.access_token,
+        expiresIn: data.data.expires_in,
         sessionState: data.data.session_state,
+        user: decodedUser,
       });
 
-      setAuth({ isAuthenticated: true, isLoading: false, user });
-      setAuthExpiresIn(data.data.expires_in);
+      // Fetch access snapshot immediately
+      await fetchAccess();
 
-      // Fetch access snapshot immediately after login
-      await loadAccessData();
+      // Start periodic refresh
+      startPeriodicRefresh();
     },
-    [loadAccessData],
+    [setTokens, fetchAccess, startPeriodicRefresh],
   );
 
   // --- Public: Logout ---
   const logout = useCallback(async () => {
-    await performLogout();
-  }, [performLogout]);
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+      refreshIntervalRef.current = null;
+    }
+    clearAuth();
+    try {
+      await fetch(INTERNAL_API_ROUTES.LOGOUT, { method: "POST" });
+    } catch {
+      // Best effort
+    }
+  }, [clearAuth]);
 
   // --- Public: Permission checks ---
   const hasPermission = useCallback(
-    (permission: string): boolean => {
-      return authorization.permissions.includes(permission);
-    },
-    [authorization.permissions],
+    (permission: string): boolean => permissions.includes(permission),
+    [permissions],
   );
 
   const hasAnyPermission = useCallback(
-    (permissions: string[]): boolean => {
-      return permissions.some((p) => authorization.permissions.includes(p));
-    },
-    [authorization.permissions],
+    (perms: string[]): boolean => perms.some((p) => permissions.includes(p)),
+    [permissions],
   );
 
   const hasAllPermissions = useCallback(
-    (permissions: string[]): boolean => {
-      return permissions.every((p) => authorization.permissions.includes(p));
-    },
-    [authorization.permissions],
+    (perms: string[]): boolean => perms.every((p) => permissions.includes(p)),
+    [permissions],
   );
 
   // --- Public: Force refresh access ---
   const refreshAccess = useCallback(async () => {
-    await loadAccessData();
-  }, [loadAccessData]);
+    await fetchAccess();
+  }, [fetchAccess]);
 
   // --- Context value ---
   const value = useMemo<OpenSuiteContextValue>(
     () => ({
-      auth,
-      authorization,
+      isAuthenticated,
+      isLoading: false, // Token is in sessionStorage, no loading state needed
+      user,
+      permissions,
+      menus,
+      isAccessLoaded,
       login,
       logout,
       hasPermission,
       hasAnyPermission,
       hasAllPermissions,
-      menus: authorization.menus,
       refreshAccess,
-      user: auth.user,
     }),
     [
-      auth,
-      authorization,
+      isAuthenticated,
+      user,
+      permissions,
+      menus,
+      isAccessLoaded,
       login,
       logout,
       hasPermission,
@@ -430,9 +294,11 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
   );
 
   return (
-    <OpenSuiteContext.Provider value={value}>
-      {children}
-    </OpenSuiteContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <OpenSuiteContext.Provider value={value}>
+        {children}
+      </OpenSuiteContext.Provider>
+    </QueryClientProvider>
   );
 }
 
@@ -448,32 +314,28 @@ export function useOpenSuite(): OpenSuiteContextValue {
   return context;
 }
 
-/**
- * Convenience hook for auth state only.
- */
 export function useAuth() {
-  const { auth, login, logout, user } = useOpenSuite();
-  return { ...auth, login, logout, user };
+  const { isAuthenticated, isLoading, user, login, logout } = useOpenSuite();
+  return { isAuthenticated, isLoading, user, login, logout };
 }
 
-/**
- * Convenience hook for authorization state only.
- */
 export function useAuthorization() {
   const {
-    authorization,
+    permissions,
+    menus,
+    isAccessLoaded,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
-    menus,
     refreshAccess,
   } = useOpenSuite();
   return {
-    ...authorization,
+    permissions,
+    menus,
+    isLoaded: isAccessLoaded,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
-    menus,
     refreshAccess,
   };
 }

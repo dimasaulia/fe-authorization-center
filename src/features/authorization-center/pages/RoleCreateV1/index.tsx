@@ -28,7 +28,6 @@ export function RoleCreateV1() {
         description={t("authz.roleCreate.description")}
         title={t("authz.roleCreate.title")}
       />
-      <AuthCenterNav active="roles" />
 
       <div className="mx-auto max-w-xl">
         <div className="overflow-hidden rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] shadow-[0_1px_3px_var(--dashboard-shadow)]">

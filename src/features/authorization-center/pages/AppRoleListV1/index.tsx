@@ -2,6 +2,7 @@
 
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
+import { Can } from "@/modules/opensuite-sdk";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 
@@ -49,9 +50,11 @@ export function AppRoleListV1({ appId }: AppRoleListV1Props) {
               type="search"
               value={search}
             />
-            <Button href={routes.appRoleCreate(appId)} variant="primary">
-              {t("authz.roles.create")}
-            </Button>
+            <Can permission="authorization-center.roles.write">
+              <Button href={routes.appRoleCreate(appId)} variant="primary">
+                {t("authz.roles.create")}
+              </Button>
+            </Can>
           </div>
 
           {error && (
@@ -105,20 +108,26 @@ export function AppRoleListV1({ appId }: AppRoleListV1Props) {
                       <td className="px-5 py-3.5"><StatusBadge status={role.status} /></td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-3">
-                          <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRoleEdit(appId, String(role.id))}>
-                            {t("authz.roles.edit")}
-                          </a>
-                          <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRolePermissionEdit(appId, role.code)}>
-                            {t("authz.rolePermissionEdit.editPermissions")}
-                          </a>
-                          <button
-                            className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                            disabled={deletingId === role.id}
-                            onClick={() => confirmDelete(role.id)}
-                            type="button"
-                          >
-                            {deletingId === role.id ? "..." : t("authz.roles.delete")}
-                          </button>
+                          <Can permission="authorization-center.roles.update">
+                            <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRoleEdit(appId, String(role.id))}>
+                              {t("authz.roles.edit")}
+                            </a>
+                          </Can>
+                          <Can permission="authorization-center.roles-and-permission.update">
+                            <a className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline" href={routes.appRolePermissionEdit(appId, role.code)}>
+                              {t("authz.rolePermissionEdit.editPermissions")}
+                            </a>
+                          </Can>
+                          <Can permission="authorization-center.roles.delete">
+                            <button
+                              className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                              disabled={deletingId === role.id}
+                              onClick={() => confirmDelete(role.id)}
+                              type="button"
+                            >
+                              {deletingId === role.id ? "..." : t("authz.roles.delete")}
+                            </button>
+                          </Can>
                         </div>
                       </td>
                     </tr>

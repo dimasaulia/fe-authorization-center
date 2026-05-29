@@ -35,7 +35,6 @@ export function RolesListV1() {
         description={t("authz.roles.globalDescription")}
         title={t("authz.roles.globalTitle")}
       />
-      <AuthCenterNav active="roles" />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <input

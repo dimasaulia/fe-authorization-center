@@ -72,7 +72,6 @@ export function TeamsListV1() {
         description={t("authz.teams.description")}
         title={t("authz.teams.title")}
       />
-      <AuthCenterNav active="teams" />
 
       {/* Search bar */}
       <div className="flex items-center gap-3 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-4 py-3">

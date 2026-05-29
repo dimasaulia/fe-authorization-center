@@ -55,7 +55,6 @@ export function ActionsListV1() {
         description={t("authz.actions.description")}
         title={t("authz.actions.title")}
       />
-      <AuthCenterNav active="actions" />
 
       {/* Search bar */}
       <div className="flex items-center gap-3 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-4 py-3">

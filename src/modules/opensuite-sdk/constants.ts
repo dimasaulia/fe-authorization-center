@@ -32,6 +32,10 @@ export const AUTH_SERVER_ENDPOINTS = {
   LOGIN: "/api/v1/auth/login",
   /** POST - Refresh token */
   REFRESH: "/api/v1/auth/refresh",
+  /** POST - Logout (invalidate refresh token) */
+  LOGOUT: "/api/v1/auth/logout",
+  /** GET - Current user profile */
+  ME: "/api/v1/auth/me",
   /** GET - JWKS public keys for token verification */
   JWKS: "/api/v1/auth/.well-known/jwks.json",
   /** GET - Access snapshot (menus + permissions) for a specific app */
@@ -45,7 +49,7 @@ export const AUTH_SERVER_ENDPOINTS = {
 export const INTERNAL_API_ROUTES = {
   /** POST - Login (stores tokens in httpOnly cookies) */
   LOGIN: "/api/auth/login",
-  /** POST - Logout (clears cookies) */
+  /** POST - Logout (clears cookies + invalidates refresh token) */
   LOGOUT: "/api/auth/logout",
   /** POST - Refresh auth tokens */
   REFRESH: "/api/auth/refresh",
@@ -53,6 +57,8 @@ export const INTERNAL_API_ROUTES = {
   SESSION: "/api/auth/session",
   /** GET - Fetch access snapshot (proxied with cookie token) */
   ACCESS: "/api/auth/access",
+  /** GET - Fetch current user profile (proxied with cookie token) */
+  ME: "/api/auth/me",
 } as const;
 
 // --- Default Configuration ---

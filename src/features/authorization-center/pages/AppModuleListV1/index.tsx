@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
+import { Can } from "@/modules/opensuite-sdk";
 import { Button } from "@/shared/components/Button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 
@@ -54,9 +55,11 @@ export function AppModuleListV1({ appId }: AppModuleListV1Props) {
               type="search"
               value={search}
             />
-            <Button href={routes.appModuleCreate(appId)} variant="primary">
-              {t("authz.modules.create")}
-            </Button>
+            <Can permission="authorization-center.modules.write">
+              <Button href={routes.appModuleCreate(appId)} variant="primary">
+                {t("authz.modules.create")}
+              </Button>
+            </Can>
           </div>
 
           {/* Error */}
@@ -116,20 +119,24 @@ export function AppModuleListV1({ appId }: AppModuleListV1Props) {
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-3">
-                          <Link
-                            className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline"
-                            href={routes.appModuleEdit(appId, String(mod.id))}
-                          >
-                            {t("authz.modules.edit")}
-                          </Link>
-                          <button
-                            className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
-                            disabled={deletingId === mod.id}
-                            onClick={() => confirmDelete(mod.id)}
-                            type="button"
-                          >
-                            {deletingId === mod.id ? "..." : t("authz.modules.delete")}
-                          </button>
+                          <Can permission="authorization-center.modules.update">
+                            <Link
+                              className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline"
+                              href={routes.appModuleEdit(appId, String(mod.id))}
+                            >
+                              {t("authz.modules.edit")}
+                            </Link>
+                          </Can>
+                          <Can permission="authorization-center.modules.delete">
+                            <button
+                              className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                              disabled={deletingId === mod.id}
+                              onClick={() => confirmDelete(mod.id)}
+                              type="button"
+                            >
+                              {deletingId === mod.id ? "..." : t("authz.modules.delete")}
+                            </button>
+                          </Can>
                         </div>
                       </td>
                     </tr>

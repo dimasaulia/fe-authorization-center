@@ -5,7 +5,6 @@
  * 
  * Setup:
  * ```tsx
- * // In your root layout or app wrapper:
  * import { OpenSuiteProvider } from "@/modules/opensuite-sdk";
  * 
  * <OpenSuiteProvider config={{
@@ -20,25 +19,9 @@
  * ```tsx
  * import { Can, usePermission, useMenus } from "@/modules/opensuite-sdk";
  * 
- * // Component-level permission check
  * <Can permission="app.users.create">
  *   <CreateButton />
  * </Can>
- * 
- * // Hook-level permission check
- * const canEdit = usePermission("app.users.update");
- * 
- * // Get authorized menus
- * const menus = useMenus();
- * ```
- * 
- * Usage - Route Protection:
- * ```tsx
- * import { RouteGuard } from "@/modules/opensuite-sdk";
- * 
- * <RouteGuard permission="app.users.read">
- *   <UserListPage />
- * </RouteGuard>
  * ```
  * 
  * Usage - Auth:
@@ -46,7 +29,6 @@
  * import { useAuth } from "@/modules/opensuite-sdk";
  * 
  * const { login, logout, isAuthenticated, user } = useAuth();
- * await login({ username: "admin", password: "pass" });
  * ```
  */
 
@@ -71,6 +53,13 @@ export {
   useAuthorization,
 } from "./provider";
 
+// --- Auth Store (Zustand) ---
+export {
+  useAuthStore,
+  getAccessToken,
+  isTokenExpiring,
+} from "./auth-store";
+
 // --- Components ---
 export { Can } from "./components/Can";
 export { RouteGuard } from "./components/RouteGuard";
@@ -91,24 +80,9 @@ export {
   apiFetchAccessSnapshot,
   apiFetchAccessToken,
   apiFetchJWKS,
+  apiLogout,
+  apiFetchUserProfile,
 } from "./api";
-
-// --- Storage (for advanced usage) ---
-export {
-  storeAccessSnapshot,
-  getStoredAccessSnapshot,
-  clearAccessStorage,
-  clearAllStorage,
-} from "./storage";
-
-// --- Token Store (in-memory, for apiClient) ---
-export {
-  getAccessToken,
-  setAccessToken,
-  clearTokenStore,
-  handleTokenExpired,
-  onTokenExpired,
-} from "./token-store";
 
 // --- Utilities ---
 export { decodeJwtPayload, isTokenExpired } from "./token-utils";
@@ -128,4 +102,9 @@ export type {
   TokenPayload,
   JWK,
   JWKSResponse,
+  UserProfile,
+  UserProfileData,
+  UserProfileResponse,
+  UserProvider,
+  UserAppAccess,
 } from "./types";

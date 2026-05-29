@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuthorization, useAuth } from "@/modules/opensuite-sdk";
 import { fallbackMenu, mapMenuEntriesToAppMenu } from "@/config/menu.config";
 import { AppIcon, type AppIconName } from "@/shared/components/AppIcon";
 import type { AppMenuItem } from "@/types/menu.type";
 
 import { DashboardTopbar } from "./components/DashboardTopbar";
+import { UserProfileMenu } from "./components/UserProfileMenu";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -15,24 +17,39 @@ type DashboardLayoutProps = {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { menus, isLoaded } = useAuthorization();
   const { logout } = useAuth();
+  const pathname = usePathname();
 
   // Use SDK menus if loaded, otherwise fallback
   const menu: AppMenuItem[] = isLoaded && menus.length > 0
     ? mapMenuEntriesToAppMenu(menus)
     : fallbackMenu;
 
-  const getMenuIcon = (href: string): AppIconName => {
-    if (href.includes("users")) return "people";
-    if (href.includes("apps")) return "shield";
-    if (href.includes("teams")) return "briefcase";
-    if (href.includes("actions")) return "calculator";
+  const getMenuIcon = (item: AppMenuItem): AppIconName => {
+    const href = item.href;
+    const code = item.code.toLowerCase();
 
-    return "mail";
+    if (code.includes("dashboard") || href === "/dashboard") return "dashboard";
+    if (code.includes("user") || href.includes("users")) return "people";
+    if (code.includes("app") || href.includes("apps")) return "apps";
+    if (code.includes("team") || href.includes("teams")) return "briefcase";
+    if (code.includes("action") || href.includes("actions")) return "zap";
+    if (code.includes("role") || href.includes("roles")) return "roles";
+    if (code.includes("permission")) return "key";
+    if (code.includes("menu")) return "menu";
+
+    return "document";
+  };
+
+  const isMenuActive = (href: string): boolean => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = "/login";
+    window.location.assign("/login");
   };
 
   return (
@@ -48,19 +65,40 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </Link>
           <div className="my-2 h-px w-[30px] bg-[var(--dashboard-border-soft)]" />
           <nav className="flex flex-col gap-2">
-            {menu.map((item) => (
-              <Link
-                aria-label={item.label}
-                className="flex h-[38px] w-[38px] items-center justify-center rounded-xl text-[var(--dashboard-text)] transition hover:bg-[var(--dashboard-panel-subtle)] first:border first:border-[var(--dashboard-accent-soft-border)] first:bg-[var(--dashboard-accent-soft)] first:text-[var(--dashboard-accent)]"
-                href={item.href}
-                key={item.href}
-              >
-                <AppIcon
-                  className="h-[18px] w-[18px]"
-                  name={getMenuIcon(item.href)}
-                />
-              </Link>
-            ))}
+            {!isLoaded ? (
+              // Loading skeleton while menus are being fetched
+              <>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    className="h-[38px] w-[38px] animate-pulse rounded-xl bg-[var(--dashboard-panel-subtle)]"
+                    key={i}
+                  />
+                ))}
+              </>
+            ) : (
+              menu.map((item) => {
+                const active = isMenuActive(item.href);
+                return (
+                  <Link
+                    aria-label={item.label}
+                    className={[
+                      "flex h-[38px] w-[38px] items-center justify-center rounded-xl transition",
+                      active
+                        ? "border border-[var(--dashboard-accent-soft-border)] bg-[var(--dashboard-accent-soft)] text-[var(--dashboard-accent)]"
+                        : "text-[var(--dashboard-text)] hover:bg-[var(--dashboard-panel-subtle)]",
+                    ].join(" ")}
+                    href={item.href}
+                    key={item.href}
+                    title={item.label}
+                  >
+                    <AppIcon
+                      className="h-[18px] w-[18px]"
+                      name={getMenuIcon(item)}
+                    />
+                  </Link>
+                );
+              })
+            )}
           </nav>
           <div className="flex-1" />
           <Link
@@ -68,26 +106,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="flex h-[38px] w-[38px] items-center justify-center rounded-xl text-[var(--dashboard-text)] transition hover:bg-[var(--dashboard-panel-subtle)]"
             href="/dashboard"
           >
-            <AppIcon className="h-5 w-5" name="settings" />
           </Link>
-          <Link
-            aria-label="Account"
-            className="flex h-[34px] w-[34px] items-center justify-center rounded-full border border-[var(--dashboard-border-soft)] bg-[var(--dashboard-field)] text-[var(--dashboard-text)]"
-            href="/users"
-          >
-            <AppIcon className="h-[17px] w-[17px]" name="user" />
-          </Link>
-          <button
-            aria-label="Logout"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-xl text-[var(--dashboard-text)] transition hover:bg-[var(--dashboard-panel-subtle)]"
-            onClick={handleLogout}
-            type="button"
-          >
-            <AppIcon className="h-[18px] w-[18px]" name="logout" />
-          </button>
+          <UserProfileMenu onLogout={handleLogout} />
         </aside>
         <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <DashboardTopbar />
+          <DashboardTopbar onLogout={handleLogout} />
           <div className="min-h-0 flex-1 overflow-auto px-5 py-6 md:px-[34px] md:py-[34px]">
             {children}
           </div>

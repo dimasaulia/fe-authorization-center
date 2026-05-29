@@ -10,6 +10,7 @@ import type {
   AccessSnapshotResponse,
   AccessTokenResponse,
   JWKSResponse,
+  UserProfileResponse,
 } from "./types";
 
 function getBaseUrl(): string {
@@ -144,6 +145,56 @@ export async function apiFetchJWKS(
 
   if (!res.ok) {
     throw new Error(`JWKS fetch failed with status ${res.status}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Logout - invalidate the refresh token on the authorization server.
+ */
+export async function apiLogout(
+  refreshToken: string,
+  options?: { baseUrl?: string },
+): Promise<{ success: boolean; message: string }> {
+  const baseUrl = options?.baseUrl ?? getBaseUrl();
+  const res = await fetch(`${baseUrl}${AUTH_SERVER_ENDPOINTS.LOGOUT}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.message || `Logout failed with status ${res.status}`,
+    );
+  }
+
+  return res.json();
+}
+
+/**
+ * Fetch the current user profile.
+ */
+export async function apiFetchUserProfile(
+  accessToken: string,
+  options?: { baseUrl?: string },
+): Promise<UserProfileResponse> {
+  const baseUrl = options?.baseUrl ?? getBaseUrl();
+  const res = await fetch(`${baseUrl}${AUTH_SERVER_ENDPOINTS.ME}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Accept-Language": "id",
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.message || `User profile fetch failed with status ${res.status}`,
+    );
   }
 
   return res.json();

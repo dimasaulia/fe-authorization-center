@@ -1,7 +1,9 @@
 /**
- * @deprecated Use `useMenus` from `@/modules/opensuite-sdk` for dynamic menus.
- * This file provides fallback/demo menu data and a utility to map SDK menus
- * to the internal AppMenuItem format.
+ * Menu configuration for the sidebar.
+ * These are general navigation items shown in the DashboardLayout sidebar.
+ * 
+ * In production, menus come from the authorization server via the SDK.
+ * This fallback is used when the SDK hasn't loaded yet or for demo purposes.
  */
 
 import { routes } from "@/config/routes.config";
@@ -13,33 +15,39 @@ import type { MenuEntry } from "@/modules/opensuite-sdk";
  */
 export const fallbackMenu: AppMenuItem[] = [
   {
-    label: "Overview",
+    label: "Dashboard",
     href: routes.dashboard,
-    permission: "dashboard.view",
+    permission: "dashboard.read",
     code: "dashboard",
   },
   {
-    label: "Users",
-    href: routes.users,
-    permission: "user.list",
-    code: "users",
-  },
-  {
-    label: "Authorization Center",
+    label: "Apps",
     href: routes.apps,
-    permission: "authorization.apps.view",
+    permission: "apps.read",
     code: "apps",
   },
   {
     label: "Teams",
     href: routes.teams,
-    permission: "authorization.teams.view",
+    permission: "teams.read",
     code: "teams",
+  },
+  {
+    label: "Roles",
+    href: routes.roles,
+    permission: "roles.read",
+    code: "roles",
+  },
+  {
+    label: "Users",
+    href: routes.users,
+    permission: "users.read",
+    code: "users",
   },
   {
     label: "Actions",
     href: routes.actions,
-    permission: "authorization.actions.view",
+    permission: "actions.read",
     code: "actions",
   },
 ];

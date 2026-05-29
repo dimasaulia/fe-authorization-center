@@ -1,5 +1,6 @@
 import { envConfig } from "@/config/env.config";
-import { getAccessToken, handleTokenExpired } from "@/modules/opensuite-sdk/token-store";
+import { useAuthStore } from "@/modules/opensuite-sdk/auth-store";
+import { INTERNAL_API_ROUTES, DEFAULTS } from "@/modules/opensuite-sdk/constants";
 
 type RequestOptions = RequestInit & {
   baseUrl?: string;
@@ -9,25 +10,13 @@ type RequestOptions = RequestInit & {
 };
 
 /**
- * API client for making authenticated requests directly from the browser.
+ * Authenticated API client.
  * 
- * Automatically injects the Authorization header from the in-memory token store.
+ * Reads access token from zustand store (persisted in sessionStorage).
+ * Token is immediately available on hard reload — no async waiting needed.
+ * 
  * If a 401 is received, triggers a token refresh and retries once.
- * 
- * Usage:
- * ```ts
- * // Authenticated request (default)
- * const users = await apiClient<UserListResponse>("/api/v1/users");
- * 
- * // POST with body
- * const result = await apiClient<CreateResponse>("/api/v1/users", {
- *   method: "POST",
- *   body: JSON.stringify({ name: "John" }),
- * });
- * 
- * // Public request (no auth header)
- * const health = await apiClient<HealthResponse>("/health", { public: true });
- * ```
+ * If refresh fails (refresh_token expired), redirects to login.
  */
 export async function apiClient<TResponse>(
   path: string,
@@ -46,9 +35,9 @@ export async function apiClient<TResponse>(
     headers.set("Accept-Language", language);
   }
 
-  // Inject Authorization header for authenticated requests
+  // Inject Authorization header from zustand store (sync read)
   if (!isPublic) {
-    const token = getAccessToken();
+    const token = useAuthStore.getState().accessToken;
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -63,12 +52,13 @@ export async function apiClient<TResponse>(
 
   // Handle 401 - attempt token refresh and retry once
   if (response.status === 401 && !isPublic) {
-    await handleTokenExpired();
-
-    // Retry with new token
-    const newToken = getAccessToken();
-    if (newToken) {
-      headers.set("Authorization", `Bearer ${newToken}`);
+    const refreshed = await attemptRefresh();
+    if (refreshed) {
+      // Retry with new token
+      const newToken = useAuthStore.getState().accessToken;
+      if (newToken) {
+        headers.set("Authorization", `Bearer ${newToken}`);
+      }
       const retryResponse = await fetch(url, {
         ...requestOptions,
         headers,
@@ -84,7 +74,10 @@ export async function apiClient<TResponse>(
       return retryResponse.json() as Promise<TResponse>;
     }
 
-    throw new Error("Session expired. Please login again.");
+    // Refresh failed → redirect to login
+    useAuthStore.getState().clearAuth();
+    window.location.assign(DEFAULTS.LOGIN_ROUTE);
+    throw new Error("Session expired. Redirecting to login.");
   }
 
   if (!response.ok) {
@@ -95,4 +88,28 @@ export async function apiClient<TResponse>(
   }
 
   return response.json() as Promise<TResponse>;
+}
+
+/**
+ * Attempt to refresh the auth token via the internal API route.
+ * Updates the zustand store on success.
+ */
+async function attemptRefresh(): Promise<boolean> {
+  try {
+    const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    if (data.success && data.data.access_token) {
+      useAuthStore.getState().setTokens({
+        accessToken: data.data.access_token,
+        expiresIn: data.data.expires_in,
+        sessionState: data.data.session_state,
+      });
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }

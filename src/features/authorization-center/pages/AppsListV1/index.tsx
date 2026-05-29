@@ -25,7 +25,6 @@ export function AppsListV1() {
         description={t("authz.apps.description")}
         title={t("authz.apps.title")}
       />
-      <AuthCenterNav active="apps" />
 
       {/* Search bar */}
       <div className="flex items-center gap-3 rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-panel)] px-4 py-3">

@@ -27,8 +27,6 @@ export function UserListV1() {
         title={t("users.title")}
       />
 
-      <AuthCenterNav active="users" />
-
       <section className="space-y-4">
         {/* Toolbar */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
