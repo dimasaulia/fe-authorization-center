@@ -1,11 +1,6 @@
-import { fallbackMenu } from "@/config/menu.config";
-import {
-  canAccess,
-  demoAccessSnapshot,
-} from "@/modules/auth/services/access-snapshot.service";
+/**
+ * @deprecated Use `useMenus` from `@/modules/opensuite-sdk` directly.
+ * This file is kept for backward compatibility.
+ */
 
-export function getAuthorizedMenu() {
-  return fallbackMenu.filter((item) =>
-    canAccess(demoAccessSnapshot, item.permission),
-  );
-}
+export { useMenus as getAuthorizedMenu } from "@/modules/opensuite-sdk";
