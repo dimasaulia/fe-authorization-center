@@ -1,16 +1,26 @@
 import { usePreferences } from "@/modules/preferences";
 
-export function DashboardGreetingSection() {
+type DashboardGreetingSectionProps = {
+  dateTime: string;
+  greeting: string;
+  isLoading: boolean;
+};
+
+export function DashboardGreetingSection({
+  dateTime,
+  greeting,
+  isLoading,
+}: DashboardGreetingSectionProps) {
   const { t } = usePreferences();
 
   return (
     <section className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
       <div className="flex max-w-[760px] flex-col gap-2">
         <p className="text-sm font-medium leading-[18px] text-[var(--dashboard-muted)]">
-          {t("dashboard.workspace")}
+          {dateTime}
         </p>
         <h1 className="text-[34px] font-semibold leading-[1.08] text-[var(--dashboard-text)] md:text-[38px]">
-          {t("dashboard.welcome")}
+          {isLoading ? t("dashboard.workspace") : greeting}
         </h1>
         <p className="text-[15px] leading-[1.45] text-[var(--dashboard-muted)]">
           {t("dashboard.description")}
