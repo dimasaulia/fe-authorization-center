@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiFetchUserProfile } from "@/modules/opensuite-sdk/api";
 import { COOKIES } from "@/modules/opensuite-sdk/constants";
+import { isAuthenticationFailure } from "@/modules/opensuite-sdk/auth-errors";
 import { envConfig } from "@/config/env.config";
 
 export async function GET() {
@@ -33,6 +34,18 @@ export async function GET() {
       error instanceof Error
         ? error.message
         : "Failed to fetch user profile";
+
+    if (isAuthenticationFailure(error)) {
+      const cookieStore = await cookies();
+      cookieStore.delete(COOKIES.AUTH_TOKEN);
+      cookieStore.delete(COOKIES.REFRESH_TOKEN);
+
+      return NextResponse.json(
+        { success: false, message },
+        { status: 401 },
+      );
+    }
+
     return NextResponse.json(
       { success: false, message },
       { status: 500 },

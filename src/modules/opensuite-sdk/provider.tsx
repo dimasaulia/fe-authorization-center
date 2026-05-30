@@ -25,6 +25,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { initOpenSuite } from "./config";
 import { AUTH_SERVER_ENDPOINTS, DEFAULTS, INTERNAL_API_ROUTES } from "./constants";
 import { useAuthStore } from "./auth-store";
+import { isAuthenticationFailure } from "./auth-errors";
 import { decodeJwtPayload } from "./token-utils";
 import type {
   LoginCredentials,
@@ -46,6 +47,7 @@ interface OpenSuiteContextValue {
   loginWithSso: (options?: { redirectTo?: string; prompt?: string }) => void;
   completeSsoLogin: (code: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
@@ -60,6 +62,34 @@ const queryClient = new QueryClient({
     queries: { retry: 1, refetchOnWindowFocus: false },
   },
 });
+
+async function readJsonOrNull<T>(res: Response): Promise<T | null> {
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+const PROTECTED_ROUTE_PREFIXES = [
+  "/dashboard",
+  "/users",
+  "/apps",
+  "/teams",
+  "/actions",
+  "/roles",
+  "/settings",
+];
+
+function isProtectedClientPath(pathname: string, defaultRoute?: string): boolean {
+  const protectedRoutes = defaultRoute
+    ? [...PROTECTED_ROUTE_PREFIXES, defaultRoute]
+    : PROTECTED_ROUTE_PREFIXES;
+
+  return protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
 
 // --- Provider Props ---
 
@@ -88,7 +118,8 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
   } = useAuthStore();
 
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isRefreshingRef = useRef(false);
+  const refreshPromiseRef = useRef<Promise<boolean> | null>(null);
+  const hasInitializedSessionRef = useRef(false);
 
   const redirectToLogin = useCallback(async () => {
     clearAuth();
@@ -102,37 +133,46 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
 
   // --- Refresh auth token ---
   const refreshAuthToken = useCallback(async (): Promise<boolean> => {
-    if (isRefreshingRef.current) return true;
-    isRefreshingRef.current = true;
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
+    }
 
-    try {
-      const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
-      if (!res.ok) {
-        // Refresh token expired → clear and redirect
+    const refreshPromise = (async () => {
+      try {
+        const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
+        if (!res.ok) {
+          // Refresh token expired → clear and redirect
+          await redirectToLogin();
+          return false;
+        }
+        const data = await res.json();
+        if (data.success && data.data.access_token) {
+          const user = data.data.id_token
+            ? decodeJwtPayload(data.data.id_token)
+            : undefined;
+          setTokens({
+            accessToken: data.data.access_token,
+            expiresIn: data.data.expires_in,
+            sessionState: data.data.session_state,
+            user,
+          });
+          return true;
+        }
+        // Refresh failed
+        await redirectToLogin();
+        return false;
+      } catch {
         await redirectToLogin();
         return false;
       }
-      const data = await res.json();
-      if (data.success && data.data.access_token) {
-        const user = data.data.id_token
-          ? decodeJwtPayload(data.data.id_token)
-          : undefined;
-        setTokens({
-          accessToken: data.data.access_token,
-          expiresIn: data.data.expires_in,
-          sessionState: data.data.session_state,
-          user,
-        });
-        return true;
-      }
-      // Refresh failed
-      await redirectToLogin();
-      return false;
-    } catch {
-      await redirectToLogin();
-      return false;
+    })();
+
+    refreshPromiseRef.current = refreshPromise;
+
+    try {
+      return await refreshPromise;
     } finally {
-      isRefreshingRef.current = false;
+      refreshPromiseRef.current = null;
     }
   }, [redirectToLogin, setTokens]);
 
@@ -140,15 +180,33 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
   const fetchAccess = useCallback(async () => {
     try {
       const res = await fetch(INTERNAL_API_ROUTES.ACCESS);
+
       if (!res.ok) {
-        if (res.status === 401) {
+        const data = await readJsonOrNull<{ message?: string }>(res);
+
+        if (res.status === 401 || isAuthenticationFailure(data?.message)) {
           // Try refresh first
           const refreshed = await refreshAuthToken();
           if (!refreshed) return;
+
           const retryRes = await fetch(INTERNAL_API_ROUTES.ACCESS);
-          if (!retryRes.ok) return;
-          const retryData = await retryRes.json();
-          if (retryData.success) {
+          const retryData = await readJsonOrNull<{
+            success?: boolean;
+            message?: string;
+            data?: { permissions: string[]; menus: MenuEntry[] };
+          }>(retryRes);
+
+          if (!retryRes.ok || !retryData?.success) {
+            if (
+              retryRes.status === 401 ||
+              isAuthenticationFailure(retryData?.message)
+            ) {
+              await redirectToLogin();
+            }
+            return;
+          }
+
+          if (retryData.data) {
             setAccess({
               permissions: retryData.data.permissions,
               menus: retryData.data.menus,
@@ -158,17 +216,25 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
         }
         return;
       }
-      const data = await res.json();
-      if (data.success) {
+
+      const data = await readJsonOrNull<{
+        success?: boolean;
+        message?: string;
+        data?: { permissions: string[]; menus: MenuEntry[] };
+      }>(res);
+
+      if (data?.success && data.data) {
         setAccess({
           permissions: data.data.permissions,
           menus: data.data.menus,
         });
+      } else if (isAuthenticationFailure(data?.message)) {
+        await redirectToLogin();
       }
     } catch {
       // Silent fail
     }
-  }, [refreshAuthToken, setAccess]);
+  }, [redirectToLogin, refreshAuthToken, setAccess]);
 
   // --- Start periodic refresh ---
   const startPeriodicRefresh = useCallback(() => {
@@ -184,21 +250,45 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
 
   // --- Initialization on mount ---
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (hasInitializedSessionRef.current) return;
 
-    // Always re-fetch access on mount (hard reload gets fresh permissions/menus)
-    fetchAccess();
+    const shouldValidateSession =
+      isAuthenticated ||
+      isProtectedClientPath(window.location.pathname, config.defaultRoute);
 
-    // Start periodic token refresh
-    startPeriodicRefresh();
+    if (!shouldValidateSession) return;
+
+    hasInitializedSessionRef.current = true;
+    let cancelled = false;
+
+    async function validateSession() {
+      const refreshed = await refreshAuthToken();
+      if (!refreshed || cancelled) return;
+
+      // Always re-fetch access after session validation on mount.
+      await fetchAccess();
+
+      if (!cancelled) {
+        startPeriodicRefresh();
+      }
+    }
+
+    validateSession();
 
     return () => {
+      cancelled = true;
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
       }
     };
-  }, [isAuthenticated, fetchAccess, startPeriodicRefresh]);
+  }, [
+    config.defaultRoute,
+    fetchAccess,
+    isAuthenticated,
+    refreshAuthToken,
+    startPeriodicRefresh,
+  ]);
 
   // --- Public: Login ---
   const login = useCallback(
@@ -321,6 +411,10 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
     await fetchAccess();
   }, [fetchAccess]);
 
+  const refreshSession = useCallback(async () => {
+    return refreshAuthToken();
+  }, [refreshAuthToken]);
+
   // --- Context value ---
   const value = useMemo<OpenSuiteContextValue>(
     () => ({
@@ -334,6 +428,7 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
       loginWithSso,
       completeSsoLogin,
       logout,
+      refreshSession,
       hasPermission,
       hasAnyPermission,
       hasAllPermissions,
@@ -349,6 +444,7 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
       loginWithSso,
       completeSsoLogin,
       logout,
+      refreshSession,
       hasPermission,
       hasAnyPermission,
       hasAllPermissions,
@@ -386,6 +482,7 @@ export function useAuth() {
     loginWithSso,
     completeSsoLogin,
     logout,
+    refreshSession,
   } = useOpenSuite();
   return {
     isAuthenticated,
@@ -395,6 +492,7 @@ export function useAuth() {
     loginWithSso,
     completeSsoLogin,
     logout,
+    refreshSession,
   };
 }
 

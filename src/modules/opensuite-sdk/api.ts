@@ -5,6 +5,7 @@
 
 import { getOpenSuiteConfig } from "./config";
 import { AUTH_SERVER_ENDPOINTS } from "./constants";
+import { ApiResponseError } from "./auth-errors";
 import type {
   AuthResponse,
   AccessSnapshotResponse,
@@ -49,7 +50,10 @@ async function readApiResponse<TResponse>(
   const data = await parseJsonResponse<TResponse & { message?: string }>(res, label);
 
   if (!res.ok) {
-    throw new Error(data.message || `${label} failed with status ${res.status}`);
+    throw new ApiResponseError(
+      data.message || `${label} failed with status ${res.status}`,
+      res.status,
+    );
   }
 
   return data;

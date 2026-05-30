@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiRefreshToken } from "@/modules/opensuite-sdk/api";
 import { COOKIES, COOKIE_OPTIONS } from "@/modules/opensuite-sdk/constants";
+import { isAuthenticationFailure } from "@/modules/opensuite-sdk/auth-errors";
 import { envConfig } from "@/config/env.config";
 
 export async function POST() {
@@ -68,9 +69,10 @@ export async function POST() {
     clearAuthCookies(cookieStore);
     const message =
       error instanceof Error ? error.message : "Token refresh failed";
+
     return NextResponse.json(
       { success: false, message },
-      { status: 500 },
+      { status: isAuthenticationFailure(error) ? 401 : 500 },
     );
   }
 }

@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { INTERNAL_API_ROUTES } from "@/modules/opensuite-sdk/constants";
+import { useAuth } from "@/modules/opensuite-sdk";
+import { isAuthenticationFailure } from "@/modules/opensuite-sdk/auth-errors";
+import { DEFAULTS, INTERNAL_API_ROUTES } from "@/modules/opensuite-sdk/constants";
 import type {
   UserProfileData,
   UserProfileResponse,
@@ -62,6 +64,7 @@ function formatCurrentDateTime(date: Date, language: string) {
 
 export function useDashboardHomeController() {
   const { language } = usePreferences();
+  const { logout, refreshSession } = useAuth();
   const [now, setNow] = useState(() => new Date());
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -81,6 +84,11 @@ export function useDashboardHomeController() {
       setProfileError(null);
 
       try {
+        const refreshed = await refreshSession();
+        if (!refreshed) {
+          return;
+        }
+
         const response = await fetch(INTERNAL_API_ROUTES.ME, {
           credentials: "include",
           signal: controller.signal,
@@ -88,6 +96,15 @@ export function useDashboardHomeController() {
         const result = (await response.json()) as UserProfileResponse;
 
         if (!response.ok || !result.success) {
+          if (
+            response.status === 401 ||
+            isAuthenticationFailure(result.message)
+          ) {
+            await logout();
+            window.location.assign(DEFAULTS.LOGIN_ROUTE);
+            return;
+          }
+
           throw new Error(result.message);
         }
 
@@ -110,7 +127,7 @@ export function useDashboardHomeController() {
     fetchProfile();
 
     return () => controller.abort();
-  }, []);
+  }, [logout, refreshSession]);
 
   const greeting = useMemo(() => {
     const displayName =
