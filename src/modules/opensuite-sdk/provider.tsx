@@ -23,7 +23,7 @@ import {
 } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { initOpenSuite } from "./config";
-import { DEFAULTS, INTERNAL_API_ROUTES } from "./constants";
+import { AUTH_SERVER_ENDPOINTS, DEFAULTS, INTERNAL_API_ROUTES } from "./constants";
 import { useAuthStore } from "./auth-store";
 import { decodeJwtPayload } from "./token-utils";
 import type {
@@ -43,6 +43,8 @@ interface OpenSuiteContextValue {
   menus: MenuEntry[];
   isAccessLoaded: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
+  loginWithSso: (options?: { redirectTo?: string; prompt?: string }) => void;
+  completeSsoLogin: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
@@ -75,7 +77,6 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
   }, [config]);
 
   const {
-    accessToken,
     isAuthenticated,
     user,
     permissions,
@@ -89,6 +90,16 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isRefreshingRef = useRef(false);
 
+  const redirectToLogin = useCallback(async () => {
+    clearAuth();
+    try {
+      await fetch(INTERNAL_API_ROUTES.LOGOUT, { method: "POST" });
+    } catch {
+      // Best effort cookie cleanup.
+    }
+    window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+  }, [clearAuth, config.loginRoute]);
+
   // --- Refresh auth token ---
   const refreshAuthToken = useCallback(async (): Promise<boolean> => {
     if (isRefreshingRef.current) return true;
@@ -98,8 +109,7 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
       const res = await fetch(INTERNAL_API_ROUTES.REFRESH, { method: "POST" });
       if (!res.ok) {
         // Refresh token expired → clear and redirect
-        clearAuth();
-        window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+        await redirectToLogin();
         return false;
       }
       const data = await res.json();
@@ -116,17 +126,15 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
         return true;
       }
       // Refresh failed
-      clearAuth();
-      window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+      await redirectToLogin();
       return false;
     } catch {
-      clearAuth();
-      window.location.assign(config.loginRoute ?? DEFAULTS.LOGIN_ROUTE);
+      await redirectToLogin();
       return false;
     } finally {
       isRefreshingRef.current = false;
     }
-  }, [clearAuth, setTokens, config.loginRoute]);
+  }, [redirectToLogin, setTokens]);
 
   // --- Fetch access snapshot ---
   const fetchAccess = useCallback(async () => {
@@ -227,6 +235,57 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
     [setTokens, fetchAccess, startPeriodicRefresh],
   );
 
+  const loginWithSso = useCallback(
+    (options?: { redirectTo?: string; prompt?: string }) => {
+      const callbackPath = config.ssoCallbackRoute ?? DEFAULTS.SSO_CALLBACK_ROUTE;
+      const callbackUrl = new URL(callbackPath, window.location.origin);
+      const redirectTo = options?.redirectTo ?? new URLSearchParams(window.location.search).get("redirect");
+      if (redirectTo) {
+        callbackUrl.searchParams.set("redirect", redirectTo);
+      }
+
+      const authUrl = new URL(
+        `${config.authServerUrl}${AUTH_SERVER_ENDPOINTS.KEYCLOAK_REDIRECT}`,
+      );
+      authUrl.searchParams.set("callback_url", callbackUrl.toString());
+      if (options?.prompt) {
+        authUrl.searchParams.set("prompt", options.prompt);
+      }
+      window.location.assign(authUrl.toString());
+    },
+    [config.authServerUrl, config.ssoCallbackRoute],
+  );
+
+  const completeSsoLogin = useCallback(
+    async (code: string) => {
+      const res = await fetch(INTERNAL_API_ROUTES.SSO_EXCHANGE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "SSO login failed");
+      }
+
+      const decodedUser = data.data.id_token
+        ? decodeJwtPayload(data.data.id_token)
+        : null;
+
+      setTokens({
+        accessToken: data.data.access_token,
+        expiresIn: data.data.expires_in,
+        sessionState: data.data.session_state,
+        user: decodedUser,
+      });
+
+      await fetchAccess();
+      startPeriodicRefresh();
+    },
+    [setTokens, fetchAccess, startPeriodicRefresh],
+  );
+
   // --- Public: Logout ---
   const logout = useCallback(async () => {
     if (refreshIntervalRef.current) {
@@ -272,6 +331,8 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
       menus,
       isAccessLoaded,
       login,
+      loginWithSso,
+      completeSsoLogin,
       logout,
       hasPermission,
       hasAnyPermission,
@@ -285,6 +346,8 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
       menus,
       isAccessLoaded,
       login,
+      loginWithSso,
+      completeSsoLogin,
       logout,
       hasPermission,
       hasAnyPermission,
@@ -315,8 +378,24 @@ export function useOpenSuite(): OpenSuiteContextValue {
 }
 
 export function useAuth() {
-  const { isAuthenticated, isLoading, user, login, logout } = useOpenSuite();
-  return { isAuthenticated, isLoading, user, login, logout };
+  const {
+    isAuthenticated,
+    isLoading,
+    user,
+    login,
+    loginWithSso,
+    completeSsoLogin,
+    logout,
+  } = useOpenSuite();
+  return {
+    isAuthenticated,
+    isLoading,
+    user,
+    login,
+    loginWithSso,
+    completeSsoLogin,
+    logout,
+  };
 }
 
 export function useAuthorization() {

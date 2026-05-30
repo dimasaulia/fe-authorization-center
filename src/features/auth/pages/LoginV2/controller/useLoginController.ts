@@ -10,7 +10,7 @@ type LoginState = {
 };
 
 export function useLoginController() {
-  const { login } = useAuth();
+  const { login, loginWithSso } = useAuth();
   const [state, setState] = useState<LoginState>({
     isLoading: false,
     error: null,
@@ -48,10 +48,17 @@ export function useLoginController() {
     setState((prev) => ({ ...prev, error: null }));
   };
 
+  const handleSsoLogin = () => {
+    setState({ isLoading: true, error: null });
+    const params = new URLSearchParams(window.location.search);
+    loginWithSso({ redirectTo: params.get("redirect") ?? DEFAULTS.DEFAULT_ROUTE });
+  };
+
   return {
     isLoading: state.isLoading,
     error: state.error,
     handleSubmit,
+    handleSsoLogin,
     clearError,
   };
 }

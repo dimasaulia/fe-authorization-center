@@ -13,6 +13,7 @@ export function initOpenSuite(config: OpenSuiteConfig): void {
     accessTokenRefreshInterval: DEFAULTS.ACCESS_REFRESH_INTERVAL_MS,
     loginRoute: DEFAULTS.LOGIN_ROUTE,
     defaultRoute: DEFAULTS.DEFAULT_ROUTE,
+    ssoCallbackRoute: DEFAULTS.SSO_CALLBACK_ROUTE,
     ...config,
   };
 }

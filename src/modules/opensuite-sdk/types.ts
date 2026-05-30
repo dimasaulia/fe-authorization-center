@@ -18,6 +18,8 @@ export interface OpenSuiteConfig {
   loginRoute?: string;
   /** Route to redirect to after login */
   defaultRoute?: string;
+  /** Route that receives the Authorization Center SSO callback code */
+  ssoCallbackRoute?: string;
 }
 
 // --- Auth Token Types ---

@@ -27,6 +27,12 @@ Flow:
   → apiClient reads token synchronously from zustand
   → Periodic refresh keeps token fresh (every 4 min)
   → If refresh fails → redirect to /login
+
+SSO Flow:
+  Login button → Authorization Center Keycloak redirect
+  → Authorization Center callback redirects back to /auth/callback?code=...
+  → Next.js API route exchanges code, stores auth cookies
+  → Zustand stores access_token and loads permissions
 ```
 
 ## Required Environment Variables
@@ -45,6 +51,7 @@ The SDK requires these Next.js API routes to be present in `src/app/api/auth/`:
 | `/api/auth/login` | POST | Login, store tokens in cookies, return access_token |
 | `/api/auth/logout` | POST | Invalidate refresh token, clear cookies |
 | `/api/auth/refresh` | POST | Refresh tokens using cookie, return new access_token |
+| `/api/auth/sso/exchange` | POST | Exchange SSO callback code, store tokens in cookies |
 | `/api/auth/session` | GET | Check if auth cookie exists |
 | `/api/auth/access` | GET | Proxy access snapshot fetch (uses cookie for auth) |
 | `/api/auth/me` | GET | Proxy user profile fetch (uses cookie for auth) |
@@ -103,7 +110,7 @@ export const appConfig = {
 import { useAuth } from "@/modules/opensuite-sdk";
 
 function LoginForm() {
-  const { login, logout, isAuthenticated, user } = useAuth();
+  const { login, loginWithSso, logout, isAuthenticated, user } = useAuth();
 
   const handleLogin = async () => {
     await login({ username: "admin", password: "pass" });
@@ -114,6 +121,10 @@ function LoginForm() {
   const handleLogout = async () => {
     await logout();
     window.location.assign("/login");
+  };
+
+  const handleSsoLogin = () => {
+    loginWithSso();
   };
 }
 ```

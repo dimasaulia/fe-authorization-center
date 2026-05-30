@@ -1,38 +1,33 @@
 /**
- * OpenSuite SDK - Refresh API Route
- * 
- * POST /api/auth/refresh
- * Refreshes auth tokens using the refresh token from httpOnly cookie.
+ * OpenSuite SDK - SSO Exchange API Route
+ *
+ * POST /api/auth/sso/exchange
+ * Exchanges Authorization Center one-time SSO code, stores tokens in httpOnly cookies.
  */
 
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { apiRefreshToken } from "@/modules/opensuite-sdk/api";
+import { NextResponse, type NextRequest } from "next/server";
+import { apiExchangeKeycloakSsoCode } from "@/modules/opensuite-sdk/api";
 import { COOKIES, COOKIE_OPTIONS } from "@/modules/opensuite-sdk/constants";
 import { envConfig } from "@/config/env.config";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get(COOKIES.REFRESH_TOKEN)?.value;
+    const body = await request.json();
+    const { code } = body;
 
-    if (!refreshToken) {
-      clearAuthCookies(cookieStore);
+    if (!code) {
       return NextResponse.json(
-        { success: false, message: "No refresh token available" },
-        { status: 401 },
+        { success: false, message: "SSO code is required" },
+        { status: 400 },
       );
     }
 
-    const result = await apiRefreshToken(refreshToken, {
+    const result = await apiExchangeKeycloakSsoCode(code, {
       baseUrl: envConfig.authorizationCenterUrl,
     });
 
     if (!result.success) {
-      // Clear cookies on refresh failure
-      cookieStore.delete(COOKIES.AUTH_TOKEN);
-      cookieStore.delete(COOKIES.REFRESH_TOKEN);
-
       return NextResponse.json(
         { success: false, message: result.message },
         { status: 401 },
@@ -40,8 +35,8 @@ export async function POST() {
     }
 
     const { data } = result;
+    const cookieStore = await cookies();
 
-    // Update cookies with new tokens
     cookieStore.set(COOKIES.AUTH_TOKEN, data.access_token, {
       ...COOKIE_OPTIONS.base,
       secure: process.env.NODE_ENV === "production",
@@ -61,21 +56,15 @@ export async function POST() {
         access_token: data.access_token,
         expires_in: data.expires_in,
         session_state: data.session_state,
+        id_token: data.id_token,
       },
     });
   } catch (error) {
-    const cookieStore = await cookies();
-    clearAuthCookies(cookieStore);
     const message =
-      error instanceof Error ? error.message : "Token refresh failed";
+      error instanceof Error ? error.message : "SSO code exchange failed";
     return NextResponse.json(
       { success: false, message },
       { status: 500 },
     );
   }
-}
-
-function clearAuthCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {
-  cookieStore.delete(COOKIES.AUTH_TOKEN);
-  cookieStore.delete(COOKIES.REFRESH_TOKEN);
 }

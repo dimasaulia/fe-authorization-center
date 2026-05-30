@@ -34,6 +34,10 @@ export const AUTH_SERVER_ENDPOINTS = {
   REFRESH: "/api/v1/auth/refresh",
   /** POST - Logout (invalidate refresh token) */
   LOGOUT: "/api/v1/auth/logout",
+  /** GET - Login via Keycloak browser SSO */
+  KEYCLOAK_REDIRECT: "/api/v1/auth/keycloak/redirect",
+  /** POST - Exchange one-time SSO callback code */
+  KEYCLOAK_EXCHANGE: "/api/v1/auth/keycloak/exchange",
   /** GET - Current user profile */
   ME: "/api/v1/auth/me",
   /** GET - JWKS public keys for token verification */
@@ -53,6 +57,8 @@ export const INTERNAL_API_ROUTES = {
   LOGOUT: "/api/auth/logout",
   /** POST - Refresh auth tokens */
   REFRESH: "/api/auth/refresh",
+  /** POST - Exchange SSO callback code and store auth cookies */
+  SSO_EXCHANGE: "/api/auth/sso/exchange",
   /** GET - Check session existence */
   SESSION: "/api/auth/session",
   /** GET - Fetch access snapshot (proxied with cookie token) */
@@ -70,6 +76,8 @@ export const DEFAULTS = {
   LOGIN_ROUTE: "/login",
   /** Default authenticated route */
   DEFAULT_ROUTE: "/dashboard",
+  /** Default SSO callback route */
+  SSO_CALLBACK_ROUTE: "/auth/callback",
   /** Seconds before expiry to trigger auth token refresh */
   AUTH_REFRESH_BUFFER_SECONDS: 60,
   /** Minimum refresh timeout in ms (fallback floor) */

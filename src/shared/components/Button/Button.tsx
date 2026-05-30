@@ -6,6 +6,7 @@ type ButtonProps = {
   disabled?: boolean;
   fullWidth?: boolean;
   href?: string;
+  onClick?: () => void;
   type?: "button" | "submit" | "reset";
   variant?: "primary" | "secondary" | "outline";
 };
@@ -24,6 +25,7 @@ export function Button({
   disabled = false,
   fullWidth = false,
   href,
+  onClick,
   type = "button",
   variant = "primary",
 }: ButtonProps) {
@@ -46,7 +48,7 @@ export function Button({
   }
 
   return (
-    <button className={buttonClassName} disabled={disabled} type={type}>
+    <button className={buttonClassName} disabled={disabled} onClick={onClick} type={type}>
       {children}
     </button>
   );

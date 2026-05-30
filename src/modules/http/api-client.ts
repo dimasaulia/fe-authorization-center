@@ -76,6 +76,7 @@ export async function apiClient<TResponse>(
 
     // Refresh failed → redirect to login
     useAuthStore.getState().clearAuth();
+    await fetch(INTERNAL_API_ROUTES.LOGOUT, { method: "POST" }).catch(() => undefined);
     window.location.assign(DEFAULTS.LOGIN_ROUTE);
     throw new Error("Session expired. Redirecting to login.");
   }

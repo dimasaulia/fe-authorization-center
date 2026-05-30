@@ -13,7 +13,7 @@ import { useLoginController } from "../controller/useLoginController";
 
 export function LoginFormSection() {
   const { t } = usePreferences();
-  const { isLoading, error, handleSubmit, clearError } = useLoginController();
+  const { isLoading, error, handleSubmit, handleSsoLogin, clearError } = useLoginController();
 
   return (
     <section className="relative flex h-full flex-1 flex-col justify-center bg-[var(--auth-card)] px-6 py-10 sm:px-12 lg:px-16 lg:py-14">
@@ -87,7 +87,7 @@ export function LoginFormSection() {
         </form>
 
         <Divider label={t("login.divider")} />
-        <SsoButton label={t("login.sso")} />
+        <SsoButton label={t("login.sso")} onClick={handleSsoLogin} />
 
         <div className="flex items-center gap-2">
           <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-[var(--auth-success)]" />

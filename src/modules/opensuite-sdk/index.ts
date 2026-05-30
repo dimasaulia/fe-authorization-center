@@ -76,6 +76,8 @@ export {
 // --- API (for advanced usage / server-side) ---
 export {
   apiLogin,
+  buildKeycloakSsoRedirectUrl,
+  apiExchangeKeycloakSsoCode,
   apiRefreshToken,
   apiFetchAccessSnapshot,
   apiFetchAccessToken,

@@ -48,6 +48,49 @@ export async function apiLogin(
 }
 
 /**
+ * Build the Authorization Center Keycloak SSO redirect URL.
+ */
+export function buildKeycloakSsoRedirectUrl(options?: {
+  baseUrl?: string;
+  callbackUrl?: string;
+  prompt?: string;
+}): string {
+  const baseUrl = options?.baseUrl ?? getBaseUrl();
+  const url = new URL(`${baseUrl}${AUTH_SERVER_ENDPOINTS.KEYCLOAK_REDIRECT}`);
+  if (options?.callbackUrl) {
+    url.searchParams.set("callback_url", options.callbackUrl);
+  }
+  if (options?.prompt) {
+    url.searchParams.set("prompt", options.prompt);
+  }
+  return url.toString();
+}
+
+/**
+ * Exchange a one-time SSO callback code for Keycloak tokens.
+ */
+export async function apiExchangeKeycloakSsoCode(
+  code: string,
+  options?: { baseUrl?: string },
+): Promise<AuthResponse> {
+  const baseUrl = options?.baseUrl ?? getBaseUrl();
+  const res = await fetch(`${baseUrl}${AUTH_SERVER_ENDPOINTS.KEYCLOAK_EXCHANGE}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.message || `SSO exchange failed with status ${res.status}`,
+    );
+  }
+
+  return res.json();
+}
+
+/**
  * Refresh the auth token using a refresh token.
  */
 export async function apiRefreshToken(
