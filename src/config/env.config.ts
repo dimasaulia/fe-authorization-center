@@ -23,4 +23,5 @@ export const envConfig = {
     "http://localhost:8080",
   fileUrl: firstDefined(process.env.NEXT_PUBLIC_FILE_URL) ?? "",
   notificationUrl: firstDefined(process.env.NEXT_PUBLIC_NOTIFICATION_URL) ?? "",
+  setupPasswordUrl: firstDefined(process.env.NEXT_PUBLIC_SETUP_PASSWORD_URL) ?? "",
 } as const;

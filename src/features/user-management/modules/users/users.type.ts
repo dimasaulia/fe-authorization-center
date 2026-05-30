@@ -31,6 +31,32 @@ export type UserCreateResponse = {
   };
 };
 
+export type UserDetailResponse = {
+  success: boolean;
+  message: string;
+  data: User;
+};
+
+export type UserActionResponse = {
+  success: boolean;
+  message: string;
+  data: null;
+};
+
+export type UserUpdatePayload = {
+  username: string;
+  email: string;
+  display_name: string;
+  password?: string;
+  must_change_password: boolean;
+};
+
+export type UserUpdateResponse = {
+  success: boolean;
+  message: string;
+  data: User;
+};
+
 export type UserListResponse = {
   success: boolean;
   message: string;
@@ -52,11 +78,17 @@ export type UserCreatePayload = {
   display_name: string;
   type: UserType;
   status: UserStatus;
-  password?: string;
-  must_change_password?: boolean;
-  send_invitation?: boolean;
+  password: string;
+  must_change_password: boolean;
+  send_invitation: boolean;
+  setup_password_url: string;
   role_ids?: number[];
   team_ids?: number[];
+};
+
+export type PasswordSetupPayload = {
+  code: string;
+  password: string;
 };
 
 export type UserSignupPayload = {

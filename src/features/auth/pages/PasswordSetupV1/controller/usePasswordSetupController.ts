@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 
+import { setupPassword } from "../service/password-setup.service";
+
 export function usePasswordSetupController() {
   const { language, t } = usePreferences();
   const router = useRouter();
@@ -19,9 +21,8 @@ export function usePasswordSetupController() {
   const [success, setSuccess] = useState(false);
 
   const submit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-
+    async () => {
+      console.log("JALAN");
       if (!code) {
         setError(t("passwordSetup.invalidCode"));
 
@@ -37,18 +38,16 @@ export function usePasswordSetupController() {
       setIsSubmitting(true);
       setError(null);
 
-      // Backend endpoint not yet implemented — UI placeholder
-      // When ready: call POST /api/v1/users/password-setup with { code, password }
       try {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await setupPassword({ code, password }, language);
         setSuccess(true);
-      } catch {
-        setError(t("passwordSetup.error"));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t("passwordSetup.error"));
       } finally {
         setIsSubmitting(false);
       }
     },
-    [code, password, confirm, t],
+    [code, password, confirm, language, t],
   );
 
   const goToLogin = useCallback(() => {

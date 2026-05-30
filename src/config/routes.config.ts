@@ -5,6 +5,7 @@ export const routes = {
   users: "/users",
   userCreate: "/users/create",
   userDetail: (id: string) => `/users/${id}`,
+  userEdit: (id: string) => `/users/${id}/edit`,
   passwordSetup: "/password/setup",
   settings: "/settings",
   apps: "/apps",

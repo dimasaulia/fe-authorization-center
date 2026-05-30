@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
+
 import { routes } from "@/config/routes.config";
 import { usePreferences } from "@/modules/preferences";
 import { Button } from "@/shared/components/Button";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 
 import { AuthCenterHeader } from "../../../authorization-center/components/AuthCenterHeader";
-import { AuthCenterNav } from "../../../authorization-center/components/AuthCenterNav";
 import { useUserListController } from "./controller/useUserListController";
 
 const statusColors: Record<string, string> = {
@@ -16,7 +18,22 @@ const statusColors: Record<string, string> = {
 
 export function UserListV1() {
   const { t } = usePreferences();
-  const { users, search, setSearch, isLoading, error } = useUserListController();
+  const {
+    cancelDelete,
+    confirmDelete,
+    confirmDeleteId,
+    deletingId,
+    error,
+    executeDelete,
+    isLoading,
+    notice,
+    resendUserInvitation,
+    resendingId,
+    search,
+    setSearch,
+    users,
+  } = useUserListController();
+  const confirmDeleteUser = users.find((user) => user.id === confirmDeleteId);
 
   return (
     <div className="space-y-6">
@@ -46,6 +63,11 @@ export function UserListV1() {
         {error && (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
+          </p>
+        )}
+        {notice && (
+          <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {notice}
           </p>
         )}
 
@@ -79,6 +101,7 @@ export function UserListV1() {
                   <th className="px-5 py-3">{t("users.col.email")}</th>
                   <th className="px-5 py-3">{t("users.col.type")}</th>
                   <th className="px-5 py-3">{t("users.col.status")}</th>
+                  <th className="px-5 py-3 text-right">{t("users.col.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -108,6 +131,34 @@ export function UserListV1() {
                         {t(`users.status.${user.status}` as "users.status.active")}
                       </span>
                     </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center justify-end gap-3 text-xs font-semibold">
+                        {user.status === "invited" && (
+                          <button
+                            className="text-xs font-semibold text-[var(--dashboard-accent)] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={resendingId === user.id}
+                            onClick={() => resendUserInvitation(user.id)}
+                            type="button"
+                          >
+                            {resendingId === user.id ? "..." : t("users.action.resendInvitation")}
+                          </button>
+                        )}
+                        <Link
+                          className="text-[var(--dashboard-accent)] hover:underline"
+                          href={routes.userEdit(String(user.id))}
+                        >
+                          {t("users.action.edit")}
+                        </Link>
+                        <button
+                          className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={deletingId === user.id}
+                          onClick={() => confirmDelete(user.id)}
+                          type="button"
+                        >
+                          {deletingId === user.id ? "..." : t("users.action.delete")}
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -115,6 +166,16 @@ export function UserListV1() {
           </div>
         )}
       </section>
+
+      <ConfirmDialog
+        description={`${t("users.delete.description")}${confirmDeleteUser ? ` "${confirmDeleteUser.display_name}"` : ""}`}
+        isLoading={deletingId !== null}
+        onCancel={cancelDelete}
+        onConfirm={executeDelete}
+        open={confirmDeleteId !== null}
+        title={t("users.delete.title")}
+        variant="danger"
+      />
     </div>
   );
 }

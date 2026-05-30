@@ -201,18 +201,13 @@ export function useUserCreateController() {
       display_name: displayName,
       type,
       status,
+      password: status === "active" ? password : "",
+      must_change_password: status === "active" ? mustChangePassword : false,
+      send_invitation: status === "invited" ? sendInvitation : false,
+      setup_password_url: "",
       role_ids: assignedRoles.map((r) => r.id),
       team_ids: assignedTeams.map((t) => t.id),
     };
-
-    if (status === "active") {
-      payload.password = password;
-      payload.must_change_password = mustChangePassword;
-    }
-
-    if (status === "invited") {
-      payload.send_invitation = sendInvitation;
-    }
 
     createNewUser(payload, language)
       .then(() => {

@@ -5,10 +5,15 @@ import { apiClient } from "@/modules/http/api-client";
 import type {
   UserCreatePayload,
   UserCreateResponse,
+  UserActionResponse,
   UserListParams,
   UserListResponse,
+  UserDetailResponse,
+  PasswordSetupPayload,
   UserSignupPayload,
   UserSignupResponse,
+  UserUpdatePayload,
+  UserUpdateResponse,
   VerifyEmailResponse,
 } from "./users.type";
 
@@ -33,6 +38,19 @@ export async function fetchUsers(
   );
 }
 
+export async function fetchUserDetail(
+  id: number,
+  language?: string,
+): Promise<UserDetailResponse> {
+  const endpoint = endpoints.user.detail(id);
+
+  return apiClient<UserDetailResponse>(endpoint.url, {
+    method: endpoint.method,
+    baseUrl: getBaseUrl(),
+    language,
+  });
+}
+
 export async function createUser(
   payload: UserCreatePayload,
   language?: string,
@@ -44,6 +62,74 @@ export async function createUser(
     body: JSON.stringify(payload),
     language,
   });
+}
+
+export async function updateUser(
+  id: number,
+  payload: UserUpdatePayload,
+  language?: string,
+): Promise<UserUpdateResponse> {
+  const endpoint = endpoints.user.update(id);
+
+  return apiClient<UserUpdateResponse>(endpoint.url, {
+    method: endpoint.method,
+    baseUrl: getBaseUrl(),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    language,
+  });
+}
+
+export async function deleteUser(
+  id: number,
+  language?: string,
+): Promise<UserActionResponse> {
+  const endpoint = endpoints.user.delete(id);
+
+  return apiClient<UserActionResponse>(endpoint.url, {
+    method: endpoint.method,
+    baseUrl: getBaseUrl(),
+    language,
+  });
+}
+
+export async function resendUserInvitation(
+  id: number,
+  setupPasswordUrl: string,
+  language?: string,
+): Promise<UserActionResponse> {
+  const endpoint = endpoints.user.resendInvitation(id);
+  const query = new URLSearchParams({
+    setup_password_url: setupPasswordUrl,
+  }).toString();
+
+  return apiClient<UserActionResponse>(`${endpoint.url}?${query}`, {
+    method: endpoint.method,
+    baseUrl: getBaseUrl(),
+    language,
+  });
+}
+
+export async function setupUserPassword(
+  payload: PasswordSetupPayload,
+  language?: string,
+): Promise<UserActionResponse> {
+  const response = await fetch(`${getBaseUrl()}${endpoints.user.passwordSetup.url}`, {
+    method: endpoints.user.passwordSetup.method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(language ? { "Accept-Language": language } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+
+    throw new Error(error.message || `Request failed with status ${response.status}`);
+  }
+
+  return response.json() as Promise<UserActionResponse>;
 }
 
 export async function signupUser(

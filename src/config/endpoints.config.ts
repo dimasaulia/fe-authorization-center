@@ -10,6 +10,8 @@ export const endpoints = {
     create: { method: "POST", url: "/api/v1/users" },
     update: (id: number) => ({ method: "PUT", url: `/api/v1/users/${id}` }),
     delete: (id: number) => ({ method: "DELETE", url: `/api/v1/users/${id}` }),
+    resendInvitation: (id: number) => ({ method: "POST", url: `/api/v1/users/${id}/resend-invitation` }),
+    passwordSetup: { method: "POST", url: "/api/v1/users/password-setup" },
     signup: { method: "POST", url: "/api/v1/users/signup" },
     verifyEmail: { method: "GET", url: "/api/v1/users/verify-email" },
   },

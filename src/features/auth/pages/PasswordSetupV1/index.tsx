@@ -56,7 +56,7 @@ export function PasswordSetupV1() {
               </Link>
             </div>
           ) : (
-            <form className="space-y-5" onSubmit={submit}>
+            <div className="space-y-5">
               {/* New password */}
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium text-[var(--auth-label)]">
@@ -64,6 +64,12 @@ export function PasswordSetupV1() {
                 </span>
                 <input
                   className={inputCls}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void submit();
+                    }
+                  }}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("passwordSetup.passwordPlaceholder")}
                   required
@@ -79,6 +85,12 @@ export function PasswordSetupV1() {
                 </span>
                 <input
                   className={inputCls}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void submit();
+                    }
+                  }}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder={t("passwordSetup.confirmPlaceholder")}
                   required
@@ -97,8 +109,11 @@ export function PasswordSetupV1() {
               {/* Submit */}
               <button
                 className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-hero-border bg-hero text-sm font-semibold text-white shadow-[0_4px_14px_rgba(1,109,252,0.22)] transition hover:bg-hero-hover disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isSubmitting || !password || !confirm}
-                type="submit"
+                disabled={isSubmitting
+
+                }
+                onClick={() => void submit()}
+                type="button"
               >
                 {isSubmitting && (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -115,7 +130,7 @@ export function PasswordSetupV1() {
                   {t("passwordSetup.backToLogin")}
                 </Link>
               </div>
-            </form>
+            </div>
           )}
         </div>
 
