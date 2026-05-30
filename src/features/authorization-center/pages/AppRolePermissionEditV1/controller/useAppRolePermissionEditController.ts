@@ -153,14 +153,22 @@ export function useAppRolePermissionEditController(appCode: string, roleCode: st
   const allSelected = allPermIds.length > 0 && allPermIds.every((id) => selectedPermissionIds.includes(id));
 
   const submit = useCallback(() => {
-    if (!roleInfo) return;
+    if (!roleInfo || !app) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
 
     updateExistingRolePermissionsByRole(
       roleInfo.id,
-      { permission_id: selectedPermissionIds, effect: "allow" },
+      {
+        permission: [
+          {
+            app_id: app.id,
+            permission_id: selectedPermissionIds,
+          },
+        ],
+        effect: "allow",
+      },
       language,
     )
       .then(() => {
@@ -170,7 +178,7 @@ export function useAppRolePermissionEditController(appCode: string, roleCode: st
         setSubmitError(t("authz.rolePermissionEdit.error"));
         setIsSubmitting(false);
       });
-  }, [roleInfo, selectedPermissionIds, language, t, router, appCode]);
+  }, [roleInfo, app, selectedPermissionIds, language, t, router, appCode]);
 
   const cancel = useCallback(() => {
     router.push(routes.appRolePermissions(appCode));

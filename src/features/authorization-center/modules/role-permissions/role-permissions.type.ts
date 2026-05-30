@@ -90,7 +90,10 @@ export type RolePermissionDetailResponse = {
 };
 
 export type RolePermissionUpdateByRolePayload = {
-  permission_id: number[];
+  permission: {
+    app_id: number;
+    permission_id: number[];
+  }[];
   effect: "allow" | "deny";
 };
 
