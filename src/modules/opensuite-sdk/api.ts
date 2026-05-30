@@ -21,6 +21,40 @@ function getAppCode(): string {
   return getOpenSuiteConfig().appCode;
 }
 
+async function parseJsonResponse<TResponse>(
+  res: Response,
+  label: string,
+): Promise<TResponse> {
+  const text = await res.text();
+  const contentType = res.headers.get("content-type") ?? "unknown";
+
+  if (!text) {
+    throw new Error(`${label} returned an empty response with status ${res.status}`);
+  }
+
+  try {
+    return JSON.parse(text) as TResponse;
+  } catch {
+    const bodyPreview = text.replace(/\s+/g, " ").slice(0, 160);
+    throw new Error(
+      `${label} returned non-JSON response with status ${res.status} (${contentType}): ${bodyPreview}`,
+    );
+  }
+}
+
+async function readApiResponse<TResponse>(
+  res: Response,
+  label: string,
+): Promise<TResponse> {
+  const data = await parseJsonResponse<TResponse & { message?: string }>(res, label);
+
+  if (!res.ok) {
+    throw new Error(data.message || `${label} failed with status ${res.status}`);
+  }
+
+  return data;
+}
+
 /**
  * Login with username/password via the authorization server.
  * The authorization server proxies to Keycloak.
@@ -37,14 +71,7 @@ export async function apiLogin(
     body: JSON.stringify({ username, password, set_cookie: false }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Login failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<AuthResponse>(res, "Login");
 }
 
 /**
@@ -80,14 +107,7 @@ export async function apiExchangeKeycloakSsoCode(
     body: JSON.stringify({ code }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `SSO exchange failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<AuthResponse>(res, "SSO exchange");
 }
 
 /**
@@ -104,14 +124,7 @@ export async function apiRefreshToken(
     body: JSON.stringify({ refresh_token: refreshToken, set_cookie: false }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Token refresh failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<AuthResponse>(res, "Token refresh");
 }
 
 /**
@@ -134,14 +147,7 @@ export async function apiFetchAccessSnapshot(
     },
   );
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Access snapshot fetch failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<AccessSnapshotResponse>(res, "Access snapshot fetch");
 }
 
 /**
@@ -164,14 +170,7 @@ export async function apiFetchAccessToken(
     },
   );
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Access token fetch failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<AccessTokenResponse>(res, "Access token fetch");
 }
 
 /**
@@ -186,11 +185,7 @@ export async function apiFetchJWKS(
     { method: "GET" },
   );
 
-  if (!res.ok) {
-    throw new Error(`JWKS fetch failed with status ${res.status}`);
-  }
-
-  return res.json();
+  return readApiResponse<JWKSResponse>(res, "JWKS fetch");
 }
 
 /**
@@ -207,14 +202,7 @@ export async function apiLogout(
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `Logout failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<{ success: boolean; message: string }>(res, "Logout");
 }
 
 /**
@@ -233,12 +221,5 @@ export async function apiFetchUserProfile(
     },
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(
-      error.message || `User profile fetch failed with status ${res.status}`,
-    );
-  }
-
-  return res.json();
+  return readApiResponse<UserProfileResponse>(res, "User profile fetch");
 }
