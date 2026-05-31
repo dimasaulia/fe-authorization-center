@@ -1,3 +1,6 @@
+import type { Role } from "../../../authorization-center/modules/roles/roles.type";
+import type { Team } from "../../../authorization-center/modules/teams/teams.type";
+
 export type UserStatus = "active" | "invited" | "inactive";
 export type UserType = "internal" | "external";
 
@@ -34,7 +37,15 @@ export type UserCreateResponse = {
 export type UserDetailResponse = {
   success: boolean;
   message: string;
-  data: User;
+  data: User & {
+    role_ids?: number[];
+    roles?: Array<
+      Pick<Role, "id" | "app_id" | "app_code" | "app_name" | "code" | "name" | "scope"> &
+      Partial<Role>
+    >;
+    team_ids?: number[];
+    teams?: Array<Pick<Team, "id" | "code" | "name" | "status"> & Partial<Team>>;
+  };
 };
 
 export type UserActionResponse = {
@@ -44,11 +55,16 @@ export type UserActionResponse = {
 };
 
 export type UserUpdatePayload = {
-  username: string;
-  email: string;
-  display_name: string;
+  organization_id?: number;
+  username?: string;
+  email?: string;
+  display_name?: string;
+  type?: UserType;
+  status?: UserStatus;
   password?: string;
-  must_change_password: boolean;
+  must_change_password?: boolean;
+  role_ids?: number[];
+  team_ids?: number[];
 };
 
 export type UserUpdateResponse = {

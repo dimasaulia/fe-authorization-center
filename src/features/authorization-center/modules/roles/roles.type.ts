@@ -2,6 +2,8 @@ export type Role = {
   id: number;
   organization_id: number | null;
   app_id: number | null;
+  app_code: string | null;
+  app_name: string | null;
   code: string;
   name: string;
   description: string;
