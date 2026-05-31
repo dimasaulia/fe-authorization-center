@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useAuth } from "@/modules/opensuite-sdk";
+import { useAuth, useAuthorization } from "@/modules/opensuite-sdk";
 import { isAuthenticationFailure } from "@/modules/opensuite-sdk/auth-errors";
 import { DEFAULTS, INTERNAL_API_ROUTES } from "@/modules/opensuite-sdk/constants";
 import type {
@@ -65,6 +65,7 @@ function formatCurrentDateTime(date: Date, language: string) {
 export function useDashboardHomeController() {
   const { language } = usePreferences();
   const { logout, refreshSession } = useAuth();
+  const { refreshAccess } = useAuthorization();
   const [now, setNow] = useState(() => new Date());
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -88,6 +89,8 @@ export function useDashboardHomeController() {
         if (!refreshed) {
           return;
         }
+
+        await refreshAccess();
 
         const response = await fetch(INTERNAL_API_ROUTES.ME, {
           credentials: "include",
@@ -127,7 +130,7 @@ export function useDashboardHomeController() {
     fetchProfile();
 
     return () => controller.abort();
-  }, [logout, refreshSession]);
+  }, [logout, refreshAccess, refreshSession]);
 
   const greeting = useMemo(() => {
     const displayName =

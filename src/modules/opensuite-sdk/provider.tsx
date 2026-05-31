@@ -243,10 +243,13 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
     }
     // Refresh token every 80% of the token lifetime (or every 4 min as fallback)
     const interval = config.accessTokenRefreshInterval ?? DEFAULTS.ACCESS_REFRESH_INTERVAL_MS;
-    refreshIntervalRef.current = setInterval(() => {
-      refreshAuthToken();
+    refreshIntervalRef.current = setInterval(async () => {
+      const refreshed = await refreshAuthToken();
+      if (refreshed) {
+        await fetchAccess();
+      }
     }, interval);
-  }, [refreshAuthToken, config.accessTokenRefreshInterval]);
+  }, [fetchAccess, refreshAuthToken, config.accessTokenRefreshInterval]);
 
   // --- Initialization on mount ---
   useEffect(() => {
@@ -259,24 +262,19 @@ export function OpenSuiteProvider({ children, config }: OpenSuiteProviderProps) 
     if (!shouldValidateSession) return;
 
     hasInitializedSessionRef.current = true;
-    let cancelled = false;
-
     async function validateSession() {
       const refreshed = await refreshAuthToken();
-      if (!refreshed || cancelled) return;
+      if (!refreshed) return;
 
       // Always re-fetch access after session validation on mount.
       await fetchAccess();
 
-      if (!cancelled) {
-        startPeriodicRefresh();
-      }
+      startPeriodicRefresh();
     }
 
     validateSession();
 
     return () => {
-      cancelled = true;
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
