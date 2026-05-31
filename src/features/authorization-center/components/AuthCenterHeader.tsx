@@ -42,7 +42,7 @@ export function AuthCenterHeader({
       </div>
       {actionHref && actionLabel ? (
         <Link
-          className="inline-flex h-11 items-center justify-center rounded-xl border border-hero-border bg-hero px-5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(1,109,252,0.22)] transition hover:bg-hero-hover"
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-hero-border bg-hero px-5 text-sm font-semibold !text-white shadow-[0_10px_22px_rgba(1,109,252,0.22)] transition hover:bg-hero-hover"
           href={actionHref}
         >
           {actionLabel}

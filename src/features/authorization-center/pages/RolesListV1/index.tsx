@@ -44,9 +44,6 @@ export function RolesListV1() {
           type="search"
           value={search}
         />
-        <Button href={routes.roleCreate} variant="primary">
-          {t("authz.roles.create")}
-        </Button>
       </div>
 
       {error && (

@@ -54,9 +54,6 @@ export function UserListV1() {
             type="search"
             value={search}
           />
-          <Button href={routes.userCreate} variant="primary">
-            {t("users.create")}
-          </Button>
         </div>
 
         {/* Error */}

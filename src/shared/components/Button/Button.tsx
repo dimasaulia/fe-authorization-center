@@ -13,7 +13,7 @@ type ButtonProps = {
 
 const variants = {
   primary:
-    "border border-hero-border bg-hero text-hero-foreground hover:bg-hero-hover",
+    "border border-hero-border bg-hero !text-white hover:bg-hero-hover",
   secondary: "border border-line bg-panel text-foreground hover:bg-[#f1eadf]",
   outline:
     "border border-[var(--auth-field-border)] bg-[var(--auth-card)] text-[var(--auth-text)] hover:bg-[var(--auth-field)]",

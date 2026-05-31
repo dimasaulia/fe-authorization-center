@@ -3,6 +3,7 @@ export type AppIconName =
   | "box"
   | "briefcase"
   | "calculator"
+  | "close"
   | "dashboard"
   | "document"
   | "folder"
@@ -51,6 +52,12 @@ const paths: Record<AppIconName, React.ReactNode> = {
     <>
       <path d="M7 4.5H17C17.8 4.5 18.5 5.2 18.5 6V18C18.5 18.8 17.8 19.5 17 19.5H7C6.2 19.5 5.5 18.8 5.5 18V6C5.5 5.2 6.2 4.5 7 4.5Z" />
       <path d="M8.5 8H15.5M8.5 12H9M12 12H13M15.5 12H15.6M8.5 15.5H9M12 15.5H13M15.5 15.5H15.6" />
+    </>
+  ),
+  close: (
+    <>
+      <path d="M7 7L17 17" />
+      <path d="M17 7L7 17" />
     </>
   ),
   dashboard: (
